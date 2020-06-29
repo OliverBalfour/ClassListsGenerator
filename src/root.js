@@ -1,6 +1,7 @@
 import React from 'react';
-import { Button, Paper, Box, withStyles } from '@material-ui/core';
-import Header from './header.js'
+import { Box, Button, withStyles } from '@material-ui/core';
+import Header from './components/header.js'
+import ColumnList from './components/columnlist.js'
 
 const styles = theme => ({
   root: {
@@ -9,38 +10,15 @@ const styles = theme => ({
     width: '100%', height: '100%',
     backgroundColor: "#EEE",
   },
-  body: {
+  fallback: {
     position: 'absolute',
     top: 0, left: 0,
     width: '100%', height: '100%',
-    backgroundColor: '#EEE',
-    margin: 0,
-    display: 'flex'
-  },
-  paper: {
-    padding: theme.spacing(2),
-    marginTop: '58px', marginRight: theme.spacing(1),
-    fontFamily: 'sans-serif'
-  },
-  columnContainer: {
-    position: 'relative',
-    width: '100%',
-    top: 0, bottom: 0,
-    padding: theme.spacing(2),
-    overflowX: 'scroll',
-    whiteSpace: 'nowrap'
-  },
-  columnBox: {
-    position: 'relative',
-    width: '20%',
-    display: 'inline-block',
-    margin: theme.spacing(1),
-    marginTop: 0
-  },
-  listName: {
-    fontSize: '20px',
-    display: 'block',
-    marginBottom: '10px'
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    fontFamily: 'sans-serif',
+    fontSize: '30px'
   }
 });
 
@@ -48,40 +26,48 @@ class App extends React.Component {
   constructor () {
     super();
     this.state = {
-      lists: [{name: '5/6B'}, {name: '5/6K'}, {name: '5/6C'}, {name: '5/6L'}, {name: '5/6J'}],
-      state: 'view' /* either view, working or editing */
+      lists: [],
+      state: 'view', /* either view, working or editing */
     };
+  }
+  import () {
+    // Insert dummy values for now
+    const lists = require('./data/dummy.json');
+    this.setState({ lists: lists });
   }
   toggleState (newState) {
     if (this.state.state !== newState)
       this.setState({ state: newState });
     else
-      this.setState({ state: 'view' });
+      this.setState({ state: 'import' });
   }
   render () {
     const { classes } = this.props;
     return (
       <Box className={classes.root}>
-        <Box className={classes.body}>
-          <Box className={classes.columnContainer}>
-            {this.state.lists.map((list, index) => (
-              <Box className={classes.columnBox} key={index}>
-                <Paper className={classes.paper}>
-                  <span className={classes.listName}>{list.name}</span>
-                  <Button variant='contained' color='primary'>Test</Button>
-                </Paper>
-              </Box>
-            ))}
+        {this.state.lists.length ? (
+          <ColumnList
+            lists={this.state.lists}
+          />
+        ) : (
+          <Box className={classes.fallback}>
+            Please &nbsp;
+            <Button onClick={this.import.bind(this)}
+              size='large' color='primary' variant='contained'>
+              import
+            </Button>
+            &nbsp; a spreadsheet
           </Box>
-        </Box>
+        )}
         <Header
-          import={() => {}}
+          import={this.import.bind(this)}
           export={() => {}}
           openListManager={() => {}}
           toggleState={this.toggleState.bind(this)}
           save={() => {}}
           restart={() => {}}
           state={this.state.state}
+          showOptions={this.state.lists.length > 0}
         />
       </Box>
     );

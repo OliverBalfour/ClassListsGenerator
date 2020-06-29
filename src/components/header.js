@@ -29,18 +29,19 @@ export default function Header (props) {
     }
   }))();
 
-  const [headerMenuOpen, setHeaderMenuOpen] = React.useState(false);
+  const [menuOpen, setMenuOpen] = React.useState(false);
   const anchorRef = React.useRef(null);
   const handleClose = event => {
     if (!anchorRef.current || !anchorRef.current.contains(event.target))
-      setHeaderMenuOpen(!headerMenuOpen);
+      setMenuOpen(!menuOpen);
   }
 
   return (
 <Box className={classes.header}>
   <Box className={classes.headerLeft}>
-    Class-ify | Class List Generator
+    Class Lists Generator App
   </Box>
+  { props.showOptions &&
   <Box className={classes.headerRight}>
     {props.state !== 'editing' &&
       <ButtonGroup
@@ -65,12 +66,12 @@ export default function Header (props) {
         <Button onClick={props.save}>Save</Button>
       }
       {props.state !== 'editing' &&
-        <Button size="small" onClick={() => setHeaderMenuOpen(!headerMenuOpen)}>
+        <Button size="small" onClick={() => setMenuOpen(!menuOpen)}>
           <MoreHorizIcon />
         </Button>
       }
     </ButtonGroup>
-    <Popper open={headerMenuOpen} anchorEl={anchorRef.current}
+    <Popper open={menuOpen} anchorEl={anchorRef.current}
       transition disablePortal>
       {({ TransitionProps, place }) => (
         <Grow {...TransitionProps} style={{
@@ -79,13 +80,15 @@ export default function Header (props) {
           <Paper>
             <ClickAwayListener onClickAway={handleClose}>
               <MenuList id="split-button-menu">
-                <MenuItem onClick={props.import}>
+                <MenuItem onClick={()=>{setMenuOpen(false); props.import()}}>
                   Import Spreadsheet (CSV)
                 </MenuItem>
-                <MenuItem onClick={props.export}>
+                <MenuItem onClick={()=>{setMenuOpen(false); props.export()}}>
                   Export Spreadsheet (CSV)
                 </MenuItem>
-                <MenuItem onClick={props.openListManager}>
+                <MenuItem onClick={()=>{
+                  setMenuOpen(false); props.openListManager()
+                }}>
                   See Saved Class Lists
                 </MenuItem>
               </MenuList>
@@ -95,6 +98,7 @@ export default function Header (props) {
       )}
     </Popper>
   </Box>
+  }
 </Box>
   );
 }
