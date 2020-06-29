@@ -1,5 +1,6 @@
 import React from 'react';
-import { Button, Paper, Box, ButtonGroup, withStyles } from '@material-ui/core';
+import { Button, Paper, Box, ButtonGroup, Popper, Grow, MenuItem, MenuList, ClickAwayListener, withStyles } from '@material-ui/core';
+import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 
 const styles = theme => ({
   root: {
@@ -26,6 +27,9 @@ const styles = theme => ({
     position: 'absolute',
     top: 0, right: 0,
     padding: 6
+  },
+  headerButtonGroup: {
+    marginLeft: theme.spacing(1)
   },
   body: {
     position: 'absolute',
@@ -65,7 +69,20 @@ const styles = theme => ({
 class App extends React.Component {
   constructor () {
     super();
-    this.state = { lists: [{name: '5/6B'}, {name: '5/6K'}, {name: '5/6C'}, {name: '5/6L'}, {name: '5/6J'}] };
+    this.state = {
+      lists: [{name: '5/6B'}, {name: '5/6K'}, {name: '5/6C'}, {name: '5/6L'}, {name: '5/6J'}],
+      headerMenuOpen: false
+    };
+    this.anchorRef = React.createRef();
+  }
+  toggleHeaderMenu () {
+    this.setState({ headerMenuOpen: !this.state.headerMenuOpen });
+  }
+  handleClose (event) {
+    if (this.anchorRef.current && this.anchorRef.current.contains(event.target)) {
+      return;
+    }
+    this.toggleHeaderMenu();
   }
   render () {
     const { classes } = this.props;
@@ -85,15 +102,43 @@ class App extends React.Component {
         </Box>
         <Box className={classes.header}>
           <Box className={classes.headerLeft}>
-            Class List Generator
+            Class-ify | Class List Generator
           </Box>
           <Box className={classes.headerRight}>
-            <ButtonGroup variant="contained" color="default">
+            <ButtonGroup
+              variant='contained' color='default'
+              className={classes.headerButtonGroup}
+            >
               <Button>Start over</Button>
               <Button>Keep working</Button>
+            </ButtonGroup>
+            <ButtonGroup
+              variant='contained' color='default'
+              className={classes.headerButtonGroup}
+              ref={this.anchorRef}
+            >
               <Button>Edit</Button>
               <Button>Save</Button>
+              <Button size="small" onClick={this.toggleHeaderMenu.bind(this)}>
+                <MoreHorizIcon />
+              </Button>
             </ButtonGroup>
+            <Popper open={this.state.headerMenuOpen} anchorEl={this.anchorRef.current} role={undefined} transition disablePortal>
+              {({ TransitionProps, placement }) => (
+                <Grow
+                  {...TransitionProps}
+                  style={{transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom'}}
+                >
+                  <Paper>
+                    <ClickAwayListener onClickAway={this.handleClose.bind(this)}>
+                      <MenuList id="split-button-menu">
+                        <MenuItem onClick={(event) => console.log("hi")}>Open Saved Class List</MenuItem>
+                        </MenuList>
+                    </ClickAwayListener>
+                  </Paper>
+                </Grow>
+              )}
+            </Popper>
           </Box>
         </Box>
       </Box>
