@@ -1,0 +1,19 @@
+{
+  "files": {
+    "main.js": "/ClassListsGenerator/static/js/main.e71e459c.chunk.js",
+    "main.js.map": "/ClassListsGenerator/static/js/main.e71e459c.chunk.js.map",
+    "runtime-main.js": "/ClassListsGenerator/static/js/runtime-main.7685c764.js",
+    "runtime-main.js.map": "/ClassListsGenerator/static/js/runtime-main.7685c764.js.map",
+    "static/js/2.665b019d.chunk.js": "/ClassListsGenerator/static/js/2.665b019d.chunk.js",
+    "static/js/2.665b019d.chunk.js.map": "/ClassListsGenerator/static/js/2.665b019d.chunk.js.map",
+    "index.html": "/ClassListsGenerator/index.html",
+    "precache-manifest.70ff077ebacf4810dc0061afeee50010.js": "/ClassListsGenerator/precache-manifest.70ff077ebacf4810dc0061afeee50010.js",
+    "service-worker.js": "/ClassListsGenerator/service-worker.js",
+    "static/js/2.665b019d.chunk.js.LICENSE.txt": "/ClassListsGenerator/static/js/2.665b019d.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.7685c764.js",
+    "static/js/2.665b019d.chunk.js",
+    "static/js/main.e71e459c.chunk.js"
+  ]
+}
