@@ -1,7 +1,8 @@
 import React from 'react';
 import { Box, Button, withStyles } from '@material-ui/core';
-import Header from './components/header.js'
-import ColumnList from './components/columnlist.js'
+import Header from './components/header.js';
+import ColumnList from './components/columnlist.js';
+import { parseCSVSpreadsheet } from './parser.js';
 
 const styles = theme => ({
   root: {
@@ -32,6 +33,14 @@ class App extends React.Component {
   }
   import () {
     // Insert dummy values for now
+    fetch('./ClassListsGenerator/dummy.csv')
+      .then(response => {
+        if (response.status !== 200) return console.error(response.status);
+        response.text().then(data => {
+          console.log(parseCSVSpreadsheet(data));
+        })
+      }).catch(console.log);
+
     const lists = require('./data/dummy.json');
     this.setState({ lists: lists });
   }

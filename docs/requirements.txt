@@ -1,0 +1,13 @@
+
+Class number
+
+Compatibility:
+List of teachers can be with (default all, pinning to a teacher)
+List of students where one is guaranteed
+List of students who none are guaranteed
+
+Categories: (columns in spreadsheet, name is heading, blank is no, filled is yes)
+
+Automatically stop at diminishing returns
+The less decision making the better
+Undo feature for ALL changes. Redo feature as well.
