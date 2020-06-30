@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Button, withStyles } from '@material-ui/core';
 import Header from './components/header.js';
 import ColumnList from './components/columnlist.js';
-import { parseCSVSpreadsheet } from './parser.js';
+import { parseCSVSpreadsheet, generateRandomInitialList } from './parser.js';
 
 const styles = theme => ({
   root: {
@@ -27,6 +27,7 @@ class App extends React.Component {
   constructor () {
     super();
     this.state = {
+      teacherNames: [],
       lists: [],
       state: 'view', /* either view, working or editing */
     };
@@ -37,12 +38,15 @@ class App extends React.Component {
       .then(response => {
         if (response.status !== 200) return console.error(response.status);
         response.text().then(data => {
-          console.log(parseCSVSpreadsheet(data));
+          // This adds numClasses, classSize, teacherNames, categories,
+          //   students, studentNames and lists to the state
+          const parsed = parseCSVSpreadsheet(data);
+          const lists = generateRandomInitialList(
+            parsed.studentNames, parsed.numClasses
+          );
+          this.setState({ ...parsed, lists });
         })
       }).catch(console.log);
-
-    const lists = require('./data/dummy.json');
-    this.setState({ lists: lists });
   }
   toggleState (newState) {
     if (this.state.state !== newState)
@@ -54,8 +58,11 @@ class App extends React.Component {
     const { classes } = this.props;
     return (
       <Box className={classes.root}>
-        {this.state.lists.length ? (
+        {this.state.teacherNames.length ? (
           <ColumnList
+            teachers={this.state.teacherNames}
+            students={this.state.students}
+            categories={this.state.categories}
             lists={this.state.lists}
           />
         ) : (
@@ -74,9 +81,11 @@ class App extends React.Component {
           openListManager={() => {}}
           toggleState={this.toggleState.bind(this)}
           save={() => {}}
-          restart={() => {}}
+          restart={() => this.setState({ lists: generateRandomInitialList(
+            this.state.studentNames, this.state.numClasses
+          )})}
           state={this.state.state}
-          showOptions={this.state.lists.length > 0}
+          showOptions={this.state.teacherNames.length > 0}
         />
       </Box>
     );

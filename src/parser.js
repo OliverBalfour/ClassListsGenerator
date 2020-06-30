@@ -28,7 +28,7 @@ export function parseCSVSpreadsheet (rawDataString) {
   var minStudents = parseInt(lines[1].split(",")[1]);
   var maxStudents = parseInt(lines[1].split(",")[2]);
 
-  var teacherNames = safeSplitComma(lines[1]).slice(8);
+  var teacherNames = safeSplitComma(lines[1]).slice(8).filter(x=>x.length>0);
   var categories = ["Female", ...safeSplitComma(lines[5]).slice(10)];
 
   var students = [];
@@ -62,6 +62,26 @@ export function parseCSVSpreadsheet (rawDataString) {
     classSize: [minStudents, maxStudents],
     teacherNames,
     categories,
-    students
+    students,
+    studentNames
   }
+}
+
+export function generateRandomInitialList (studentNames, numClasses) {
+  const shuffle = a => {
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  };
+  var listIndices = shuffle(studentNames.map((_,i)=>i));
+  var lists = [];
+  var lastIndex = 0;
+  let k = Math.ceil(studentNames.length/numClasses);
+  for (let i = 0; i < numClasses; i++) {
+    lists.push(listIndices.slice(lastIndex, lastIndex + k));
+    lastIndex += k;
+  }
+  return lists;
 }

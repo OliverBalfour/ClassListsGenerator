@@ -22,7 +22,7 @@ export default function ColumnList (props) {
     },
     columnBox: {
       position: 'relative',
-      width: '20%',
+      width: '300px',
       display: 'inline-block',
       margin: theme.spacing(1),
       marginTop: 0
@@ -32,9 +32,9 @@ export default function ColumnList (props) {
   return (
 <Box className={classes.body}>
   <Box className={classes.columnContainer}>
-    {props.lists.map((list, index) => (
+    {props.teachers.map((name, index) => (
       <Box className={classes.columnBox} key={index}>
-        <Column list={list} />
+        <Column name={name} list={props.lists[index]} students={props.students} />
       </Box>
     ))}
   </Box>
