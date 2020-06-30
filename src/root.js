@@ -34,7 +34,7 @@ class App extends React.Component {
   }
   import () {
     // Insert dummy values for now
-    fetch('./ClassListsGenerator/dummy.csv')
+    fetch('./dummy.csv')
       .then(response => {
         if (response.status !== 200) return console.error(response.status);
         response.text().then(data => {

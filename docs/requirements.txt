@@ -11,3 +11,5 @@ Categories: (columns in spreadsheet, name is heading, blank is no, filled is yes
 Automatically stop at diminishing returns
 The less decision making the better
 Undo feature for ALL changes. Redo feature as well.
+Streamline spreadsheet import and error handling
+Create google form for friend names
