@@ -13,3 +13,12 @@ The less decision making the better
 Undo feature for ALL changes. Redo feature as well.
 Streamline spreadsheet import and error handling
 Create google form for friend names
+
+TODO:
+Simulated annealing (increasing chance of poor adjustments being accepted)
+Class size re-balancing (support permutations which alter class size)
+Add class size, category imbalance to determineIssues
+Import from local CSV file
+Export CSV file
+Print CSS - columns stacked without category labels or buttons
+Finalise documentation

@@ -69,7 +69,7 @@ export function parseCSVSpreadsheet (rawDataString) {
   }
 }
 
-export function generateRandomInitialList (studentNames, numClasses) {
+export function generateRandomList (studentNames, numClasses) {
   const shuffle = a => {
     for (let i = a.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));

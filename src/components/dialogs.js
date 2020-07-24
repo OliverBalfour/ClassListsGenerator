@@ -1,9 +1,11 @@
 import React from 'react';
-import { TextField, Dialog, DialogActions, DialogContent, DialogContentText,
+import {
+  TextField, Dialog, DialogActions, DialogContent, DialogContentText,
   DialogTitle, Button, FormLabel, FormControl, FormGroup, FormControlLabel,
-  Checkbox } from '@material-ui/core';
+  Checkbox, Table, TableBody, TableRow, TableCell, Select
+} from '@material-ui/core';
 
-export default function EditStudentDialog (props) {
+export function EditStudentDialog (props) {
   const studentNames = props.students.map(x=>x.name);
   /**
    * props.student_idx :: Int
@@ -29,6 +31,7 @@ export default function EditStudentDialog (props) {
 
   // Use dummy representations of lists of names as checkboxes are a poor choice
   // for this use case and a dynamic list is a lot of work
+  // TODO: use <Select multiple /> instead https://material-ui.com/components/selects/#multiple-select
 
   // handle change to 'name 1, name 2, ...' represented as list of
   // indices into props.students
@@ -40,6 +43,7 @@ export default function EditStudentDialog (props) {
   const handleDummyChange = key => evt => setDummies({
     ...dummies, [key]: evt.target.value
   });
+  let [classIdx, setClassIdx] = React.useState(props.classIdx);
   const updateStudent = student => {
     // Rebase dummy values onto student by parsing CSV strings
     var stud = {};
@@ -61,6 +65,8 @@ export default function EditStudentDialog (props) {
         student[key] = value;
       }
       setStudent(student);
+      if (classIdx !== props.classIdx && student !== props.students[props.student_idx])
+        props.updateStudentClassIdx(classIdx);
       props.updateStudent(student);
     }
   }
@@ -87,7 +93,6 @@ export default function EditStudentDialog (props) {
     fullWidth
   /></>);
 
-
   return (
  <Dialog open={true} onClose={()=>{}} aria-labelledby="form-dialog-title">
   <DialogTitle id="form-dialog-title">Editing {student.name}</DialogTitle>
@@ -106,6 +111,16 @@ export default function EditStudentDialog (props) {
       onChange={handleChange("name")}
       fullWidth
     />
+    <Select
+      native
+      value={props.teachers[classIdx]}
+      onChange={evt => setClassIdx(props.teachers.indexOf(evt.target.value))}
+      fullWidth
+    >
+      {props.teachers.map((name, idx) =>
+        <option value={name} key={idx}>{name}</option>
+      )}
+    </Select>
     <FormControl component="fieldset" style={{marginTop:"20px"}}>
       <FormLabel component="legend">Categories</FormLabel>
       <FormGroup>
@@ -153,6 +168,33 @@ export default function EditStudentDialog (props) {
     <Button onClick={() => updateStudent(student)}
       color="primary">
       Update
+    </Button>
+  </DialogActions>
+</Dialog>
+  );
+}
+
+export function ViewIssuesDialog (props) {
+  return (
+ <Dialog open={true} onClose={()=>{}} aria-labelledby="form-dialog-title"
+    fullWidth={true} maxWidth="md">
+  <DialogTitle id="form-dialog-title">Issues with current class list</DialogTitle>
+  <DialogContent>
+    <Table size='small'>
+      <TableBody>
+        {props.issues.map((issue, idx) => (
+          <TableRow key={idx}>
+            <TableCell>
+              {issue.message}
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  </DialogContent>
+  <DialogActions>
+    <Button color="primary" onClick={props.close}>
+      Close
     </Button>
   </DialogActions>
 </Dialog>

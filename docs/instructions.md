@@ -40,6 +40,8 @@ Now we can progress to using the app to generate class lists according to the co
 
 ## Step 5: Tweaking your class lists
 
+Can't be with teacher X. Must be with teacher X.
+
 ## Step 6: Exporting your chosen class list
 
 There are two ways of exporting the class list. One is to print the website. Many computers allow you to print to a PDF which is saved to your computer instead of printing an actual hardcopy. The other option is to export a CSV spreadsheet file which you can open with Google Sheets or Microsoft Excel.

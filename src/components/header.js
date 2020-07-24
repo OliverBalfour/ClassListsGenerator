@@ -43,6 +43,9 @@ export default function Header (props) {
   </Box>
   { props.showOptions &&
   <Box className={classes.headerRight}>
+    <Button onClick={props.viewIssues} color='default' variant='contained'>
+      View issues ({props.issues.length})
+    </Button>
     {props.state !== 'editing' &&
       <ButtonGroup
         variant='contained' color='default'
