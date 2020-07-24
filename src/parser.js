@@ -1,6 +1,7 @@
 
 export function parseCSVSpreadsheet (rawDataString) {
   var lines = rawDataString.split(/[\r\n]+/); // split by all 3 line endings
+  while (lines.indexOf("") !== -1) lines.splice(lines.indexOf(""), 1);
 
   const safeSplitComma = string => {
     // we can have commas in strings delimited by "these quotes"
@@ -35,6 +36,7 @@ export function parseCSVSpreadsheet (rawDataString) {
   var studentNames = lines.slice(6).map(l => l.substring(0, l.indexOf(',')));
   for (let i = 6; i < lines.length; i++) {
     var row = safeSplitComma(lines[i]);
+    if (row.length < 10) console.log("Is there a / at the end of the URL?");
     students.push({
       name: row[0],
       categories: [row[1] === "F",
@@ -50,7 +52,7 @@ export function parseCSVSpreadsheet (rawDataString) {
       // indices of teacher names within teacherNames
       // if ALL, add all indices [0,1,...,numClasses]
       possibleTeachers: (row[9].toLowerCase() === "all"
-                      || row[9].toLowerCase() === "any")
+                      || row[9].toLowerCase() === "any" || row[9] === "")
         ? teacherNames.map((_,i) => i)
         : safeSplitComma(row[9]).map(name => teacherNames.indexOf(name))
           .filter(x=>x>=0)

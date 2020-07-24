@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Button, withStyles } from '@material-ui/core';
 import Header from './components/header.js';
 import ColumnList from './components/columnlist.js';
+import EditStudentDialog from './components/editstudentdialog.js';
 import { parseCSVSpreadsheet, generateRandomInitialList } from './parser.js';
 
 const styles = theme => ({
@@ -29,7 +30,10 @@ class App extends React.Component {
     this.state = {
       teacherNames: [],
       lists: [],
-      state: 'view', /* either view, working or editing */
+      /* either view, working or editing */
+      state: 'view',
+      // if positive, modal is open with that index student's config
+      editingStudent: -1,
     };
   }
   import () {
@@ -54,6 +58,10 @@ class App extends React.Component {
     else
       this.setState({ state: 'import' });
   }
+  editStudent (student_idx) {
+    // open modal to edit student information
+    this.setState({editingStudent: student_idx});
+  }
   render () {
     const { classes } = this.props;
     return (
@@ -64,6 +72,8 @@ class App extends React.Component {
             students={this.state.students}
             categories={this.state.categories}
             lists={this.state.lists}
+            state={this.state.state}
+            editStudent={this.editStudent.bind(this)}
           />
         ) : (
           <Box className={classes.fallback}>
@@ -87,6 +97,18 @@ class App extends React.Component {
           state={this.state.state}
           showOptions={this.state.teacherNames.length > 0}
         />
+        {this.state.editingStudent < 0 ? null : (
+          <EditStudentDialog student_idx={this.state.editingStudent}
+            teachers={this.state.teacherNames}
+            students={this.state.students}
+            categories={this.state.categories}
+            updateStudent={student => {
+              const students = this.state.students;
+              students[this.state.editingStudent] = student;
+              this.setState({ students, editingStudent: -1 });
+            }}
+          />
+        )}
       </Box>
     );
   }

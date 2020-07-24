@@ -3,6 +3,16 @@ import { Box, makeStyles } from '@material-ui/core';
 import Column from './column.js'
 
 export default function ColumnList (props) {
+  /**
+   * props.teachers :: [name :: String]
+   * props.students :: [{
+     name :: String, categories :: [Bool], friends :: [student index]
+     mustBeWith :: [student index], cannotBeWith :: [student index],
+     possibleTeachers :: [index into teachers]
+   }]
+   * props.categories :: [String]
+   * props.lists :: [[index into students]] where subarrays are teacher indexed
+   */
   const classes = makeStyles(theme => ({
     body: {
       position: 'absolute',
@@ -22,7 +32,7 @@ export default function ColumnList (props) {
     },
     columnBox: {
       position: 'relative',
-      width: '300px',
+      width: '360px',
       display: 'inline-block',
       margin: theme.spacing(1),
       marginTop: 0
@@ -34,7 +44,9 @@ export default function ColumnList (props) {
   <Box className={classes.columnContainer}>
     {props.teachers.map((name, index) => (
       <Box className={classes.columnBox} key={index}>
-        <Column name={name} list={props.lists[index]} students={props.students} />
+        <Column name={name} list={props.lists[index]}
+          students={props.students} categories={props.categories}
+          state={props.state} editStudent={props.editStudent} />
       </Box>
     ))}
   </Box>
