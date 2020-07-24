@@ -22,3 +22,6 @@ Import from local CSV file
 Export CSV file
 Print CSS - columns stacked without category labels or buttons
 Finalise documentation
+Save to localStorage database of lists
+Undo - class list state only, not student state
+Pause automatically on 0 issues or after an iteration without changes (say it's finished in a snackbar)

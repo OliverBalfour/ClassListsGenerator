@@ -38,9 +38,21 @@ Now we can progress to using the app to generate class lists according to the co
 
 ## Step 4: Using the app to generate class lists
 
+Now, press "Keep Working" to start running the class optimisation process. This will calculate thousands of possible class lists and quickly improve the list. If you click the "View Issues" button you'll notice the number of issues decreasing. It will automatically stop when it has stopped improving. You can pause and resume the process or restart ("Start Over") at any time.
+
 ## Step 5: Tweaking your class lists
 
-Can't be with teacher X. Must be with teacher X.
+For various reasons, the class lists generated may have certain problems. There are two ways of fixing problems in this app:
+
+1. Updating parameters.
+
+Click Edit and then the pencil next to the student you would like to move. Then, consider why the change needs to be made - does this student need to be separated from another student? If so, update the 'cannot be with' list. Can the student not be with a certain teacher? Change the 'possible teachers' list. If you change these parameters rather than force the student into another class yourself, the computer will understand why you want to make the change and will be able to fix it itself when you unpause the program.
+
+If the reason for a change is too complex to express in the list of parameters offered, consider unticking all teachers except that of the class you would like them moved to, or pressing 'start over'.
+
+2. Directly changing classes.
+
+Click Edit and then the pencil next to the student you would like to move. Then directly under the name click the teacher name select field and choose the desired teacher. *Although faster, this approach is not recommended.* It is only recommended for finalising the class list. This is because manually overriding the program means if you unpause it it will become confused and think your change was a mistake and most likely undo it. Instead, you should change an underlying parameter so the computer will automatically move the student for you. This is because if the information fed into the program was complete/correct, it would have already made the change you desire.
 
 ## Step 6: Exporting your chosen class list
 
