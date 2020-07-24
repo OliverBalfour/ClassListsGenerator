@@ -41,6 +41,12 @@ export default function Header (props) {
   <Box className={classes.headerLeft}>
     Class Lists Generator App
   </Box>
+  {!props.showOptions && (
+    <a href='https://oliverbalfour.github.io/ClassListsGenerator/docs/instructions.html'
+      style={{color:"white", fontSize:"20px", float: "right", fontFamily: "sans-serif", margin: "14px"}}
+      target="_blank" rel="noopener noreferrer"
+    >Instructions</a>
+  )}
   { props.showOptions &&
   <Box className={classes.headerRight}>
     <Button onClick={props.viewIssues} color='default' variant='contained'>

@@ -14,7 +14,8 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "docs": "showdown makehtml -i build/docs/instructions.md -o build/docs/instructions.html",
+    "build": "react-scripts build && cp -r docs build/docs && npm run docs",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
@@ -36,7 +37,8 @@
     ]
   },
   "devDependencies": {
-    "gh-pages": "^3.1.0"
+    "gh-pages": "^3.1.0",
+    "showdown": "^1.9.1"
   },
   "homepage": "https://oliverbalfour.github.io/ClassListsGenerator"
 }
