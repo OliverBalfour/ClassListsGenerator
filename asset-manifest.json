@@ -1,19 +1,19 @@
 {
   "files": {
-    "main.js": "/ClassListsGenerator/static/js/main.7662b4ad.chunk.js",
-    "main.js.map": "/ClassListsGenerator/static/js/main.7662b4ad.chunk.js.map",
+    "main.js": "/ClassListsGenerator/static/js/main.aa1818ba.chunk.js",
+    "main.js.map": "/ClassListsGenerator/static/js/main.aa1818ba.chunk.js.map",
     "runtime-main.js": "/ClassListsGenerator/static/js/runtime-main.7685c764.js",
     "runtime-main.js.map": "/ClassListsGenerator/static/js/runtime-main.7685c764.js.map",
     "static/js/2.1b804c3d.chunk.js": "/ClassListsGenerator/static/js/2.1b804c3d.chunk.js",
     "static/js/2.1b804c3d.chunk.js.map": "/ClassListsGenerator/static/js/2.1b804c3d.chunk.js.map",
     "index.html": "/ClassListsGenerator/index.html",
-    "precache-manifest.4160cfba5fd2deeea182d7314a5f1a3e.js": "/ClassListsGenerator/precache-manifest.4160cfba5fd2deeea182d7314a5f1a3e.js",
+    "precache-manifest.a07bee38e6f2d66b094e92c9a9f636b5.js": "/ClassListsGenerator/precache-manifest.a07bee38e6f2d66b094e92c9a9f636b5.js",
     "service-worker.js": "/ClassListsGenerator/service-worker.js",
     "static/js/2.1b804c3d.chunk.js.LICENSE.txt": "/ClassListsGenerator/static/js/2.1b804c3d.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.7685c764.js",
     "static/js/2.1b804c3d.chunk.js",
-    "static/js/main.7662b4ad.chunk.js"
+    "static/js/main.aa1818ba.chunk.js"
   ]
 }
