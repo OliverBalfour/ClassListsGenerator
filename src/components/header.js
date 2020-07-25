@@ -49,19 +49,27 @@ export default function Header (props) {
   )}
   { props.showOptions &&
   <Box className={classes.headerRight}>
-    <Button onClick={props.viewIssues} color='default' variant='contained'>
+    <Button
+      onClick={props.viewIssues}
+      color='default' variant='contained' style={{marginRight: "10px"}}
+    >
       View issues ({props.issues.length})
     </Button>
     {props.state !== 'editing' &&
-      <ButtonGroup
-        variant='contained' color='default'
-        className={classes.headerButtonGroup}
+      <Button
+        onClick={props.restart}
+        color='default' variant='contained' style={{marginRight: "10px"}}
       >
-        <Button onClick={props.restart}>Start over</Button>
-        <Button onClick={() => props.toggleState('working')}>
-          {props.state === 'working' ? 'Pause' : 'Keep working'}
-        </Button>
-      </ButtonGroup>
+        Start over
+      </Button>
+    }
+    {props.state !== 'editing' &&
+      <Button
+        onClick={() => props.toggleState('working')}
+        color='default' variant='contained'
+      >
+        {props.state === 'working' ? 'Pause' : 'Play'}
+      </Button>
     }
     <ButtonGroup
       variant='contained' color='default'

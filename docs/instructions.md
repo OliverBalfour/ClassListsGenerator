@@ -38,7 +38,7 @@ Now we can progress to using the app to generate class lists according to the co
 
 ## Step 4: Using the app to generate class lists
 
-Now, press "Keep Working" to start running the class optimisation process. This will calculate thousands of possible class lists and quickly improve the list. If you click the "View Issues" button you'll notice the number of issues decreasing. It will automatically stop when it has stopped improving. You can pause and resume the process or restart ("Start Over") at any time.
+Now, press "Play" to start running the class optimisation process. This will calculate thousands of possible class lists and quickly improve the list. If you click the "View Issues" button you'll notice the number of issues decreasing. It will automatically stop when it has stopped improving. You can pause and resume the process or restart ("Start Over") at any time.
 
 ## Step 5: Tweaking your class lists
 
