@@ -38,6 +38,8 @@ class App extends React.Component {
       issues: [],
       viMod: false, // view issues modal open
     };
+    // after 5 iterations which change nothing, pause
+    this.numUselessIterations = 0;
   }
   import () {
     // Insert dummy values for now
@@ -51,7 +53,7 @@ class App extends React.Component {
           const lists = generateRandomList(
             parsed.studentNames, parsed.numClasses
           );
-          const issues = determineIssues(lists, parsed.students);
+          const issues = determineIssues(lists, parsed.students, parsed.classSize, parsed.categories, parsed.teacherNames);
           this.setState({ ...parsed, lists, issues });
         })
       }).catch(console.log);
@@ -72,7 +74,18 @@ class App extends React.Component {
   }
   worker () {
     const { lists, issues } = iterate(
-      this.state.lists, this.state.students, this.state.classSize);
+      this.state.lists, this.state.students, this.state.classSize,
+      this.state.categories, this.state.teacherNames
+    );
+    // This assumes all issues are equal; it's a decent approximation
+    if (this.state.issues.length === issues.length)
+      this.numUselessIterations++;
+    else
+      this.numUselessIterations = 0;
+    if (this.numUselessIterations >= 5 || issues.length === 0) {
+      this.toggleState("working");
+      this.numUselessIterations = 0;
+    }
     this.setState({ lists, issues });
   }
   stopWorking () {
@@ -129,7 +142,7 @@ class App extends React.Component {
               const students = this.state.students;
               students[this.state.editingStudent] = student;
               this.setState({ students, editingStudent: -1,
-                issues: determineIssues(this.state.lists, students) });
+                issues: determineIssues(this.state.lists, students, this.state.classSize, this.state.categories, this.state.teacherNames) });
             }}
             classIdx={classIdx}
             updateStudentClassIdx={newClassIdx => {
