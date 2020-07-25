@@ -1,4 +1,4 @@
-// Hill walking algorithm - kinda average interim solution
+
 // Lists is a jagged array of student indices
 // Class size is [min, max]
 // Students is an array of student objects such that:
@@ -6,32 +6,69 @@
 //  categories::[Bool] - each boolean category should be roughly evenly distributed
 //  mustBeWith::[Int], cannotBeWith::[Int]
 //  possibleTeachers::[Int]
-export function iterate (lists, students, classSize) {
-  var numMoves = 0;
-  for (let i = 0; i < 100; i++) {
-    const perm = generatePermutation(lists, students, classSize);
-    if (cost(perm, students) < cost(lists, students)) {
+export function iterate (lists, students, classSize, categories, teachers) {
+  // Use a weird mix of hill climbing and simulated annealing optimisation algorithms
+  // Initially we choose the first five moves that reduce cost of up to 100 moves
+  // By the end we string multiple moves together (up to 10 consecutively)
+  // And they can increase cost with a low probability
+  let maxChanges = 5,
+      maxAttemptedChanges = 100,
+      maxPermutationSteps = 5,
+      maxPAcceptWorse = 0.05;
+  for (let i = 0, c = 0; i < maxAttemptedChanges && c < maxChanges; i++) {
+    // if we are 'behind schedule' (not on track to reach c == maxChanges)
+    // then we increase the number of permutation steps
+    // and increase P(accept worse solution)
+    let schedule = relu(i / maxAttemptedChanges - c / maxChanges),
+        permutationSteps = Math.round(1 + schedule * (maxPermutationSteps - 1)),
+        pAcceptWorse = schedule * maxPAcceptWorse;
+    // Generate a new permutation
+    let perm = copy(lists);
+    for (let j = 0; j < permutationSteps; j++)
+      perm = generatePermutation(perm, students, classSize);
+    // Update the lists
+    if (
+      Math.random() < pAcceptWorse
+      || cost(perm,  students, classSize, categories, teachers)
+       < cost(lists, students, classSize, categories, teachers)
+    ) {
+      c++;
       lists = perm;
-      numMoves ++;
-      if (numMoves > 5) break;
     }
   }
-  const issues = determineIssues(lists, students);
+  const issues = determineIssues(lists, students, classSize, categories, teachers);
   return { lists, issues };
 }
 
-// Considerations: class size is not constant
 function generatePermutation(lists, students, classSize) {
   lists = copy(lists);
-  let a = rand(0, students.length),
-      b = rand(0, students.length - 1);
-  if (b === a) b = students.length - 1;
-  for (let i = 0; i < lists.length; i++) {
-    if (lists[i].indexOf(a) >= 0) lists[i][lists[i].indexOf(a)] = b;
+  // Most perms swap students, it's cleaner and there are more possible moves
+  if (rand(0,2) < 1) {
+    // swap two students (class size remains the same)
+    let a = rand(0, students.length),
+        b = rand(0, students.length - 1);
+    if (b === a) b = students.length - 1;
+    let asrc = searchClasses(lists, a),
+        bsrc = searchClasses(lists, b);
+    lists[asrc][lists[asrc].indexOf(a)] = b;
+    lists[bsrc][lists[bsrc].indexOf(b)] = a;
+  } else {
+    // move one student to another class
+    let a = rand(0, students.length),
+        dst = rand(0, lists.length - 1),
+        src = searchClasses(lists, a);
+    if (dst === src) dst = lists.length - 1;
+    lists[src].splice(lists[src].indexOf(a), 1);
+    lists[dst].push(a);
   }
-  for (let i = lists.length - 1; i >= 0; i--) {
-    if (lists[i].indexOf(b) >= 0) lists[i][lists[i].indexOf(b)] = a;
-  }
+
+  // Test that no student is duplicated
+  var studs = {};
+  for (let list of lists)
+    for (let student of list)
+      if (studs[student]) console.error("Duplicated student");
+      else studs[student] = true;
+  
   return lists;
 }
 
@@ -39,20 +76,29 @@ function generatePermutation(lists, students, classSize) {
 const rand = (min, max) => Math.floor(Math.random() * (max - min) + min);
 // Deep copy primitive object/array
 const copy = obj => JSON.parse(JSON.stringify(obj));
+const relu = x => Math.min(0,x);
 
-function cost (lists, students) {
-  return determineIssues(lists, students).map(x => x.severity).reduce((a,b)=>a+b,0);
+// Sum severities of the issues list
+function cost (lists, students, classSize, categories, teachers) {
+  return determineIssues(lists, students, classSize, categories, teachers)
+    .map(x => x.severity)
+    .reduce((a,b)=>a+b,0);
 }
+
+// Search a class list for student index x (-1 if not found)
+const searchClasses = (lists, x) =>
+  lists.map(list => list.indexOf(x) !== -1).indexOf(true);
 
 // determineIssues :: [[Int]], [Student] -> [{severity::Int, message::String}]
 // Creates a list of issues with a list state for 1) display in a modal
 // and 2) optimisation in `iterate`: minimises \sum_{k\in issues} k_{severity}
-export function determineIssues (lists, students) {
+export function determineIssues (lists, students, classSize, categories, teachers) {
   var issues = [];
   for (let j = 0; j < lists.length; j++) {
     const list = lists[j];
     for (let i = 0; i < list.length; i++) {
       const student = students[list[i]];
+      // Must/cannot be with
       for (const idx of student.mustBeWith) {
         if (list.indexOf(idx) === -1)
           issues.push({severity: 3, message: `${student.name} must be with ${students[idx].name}.`});
@@ -61,16 +107,47 @@ export function determineIssues (lists, students) {
         if (list.indexOf(idx) !== -1)
           issues.push({severity: 5, message: `${student.name} cannot be with ${students[idx].name}.`});
       }
+      // Friends
       let numFriends = 0;
       for (const idx of student.friends) {
         if (list.indexOf(idx) !== -1) numFriends ++;
       }
       if (numFriends < 1)
-        issues.push({severity: 4, message: `${student.name} is not with any friends.`});
+        issues.push({severity: 3, message: `${student.name} is not with any friends.`});
+      // Possible teachers
       if (student.possibleTeachers.indexOf(j) === -1)
-        issues.push({severity: 3, message: `${student.name} must be with a different teacher.`});
+        issues.push({severity: 5, message: `${student.name} must not be in ${teachers[j]}'s class.`});
+    }
+    // Class size
+    if (list.length < classSize[0]) {
+      const severity = classSize[0] - list.length;
+      issues.push({
+        severity: 8 * severity,
+        message: `${teachers[j]}'s class has ${severity} too few students.`
+      });
+    } else if (list.length > classSize[1]) {
+      const severity = list.length - classSize[1];
+      issues.push({
+        severity: 10 * severity,
+        message: `${teachers[j]}'s class has ${severity} too many students.`
+      });
     }
   }
-  // TODO: sum number of each category per class, add abs(a-b-1)//2 severity points per no classes choose 2 (a,b) tuples per category?
+  // Categories
+  // catMat[categoryIdx][classIdx] is num people with that cat in that class
+  const catMat = categories.map((_, i) => lists.map(
+    // count number of students in list with category i enabled
+    list => list.map(studentIdx => students[studentIdx].categories[i]).reduce((a,b)=>a+b,0)
+  ));
+  for (let i = 0; i < categories.length; i++) {
+    const diff = Math.max(...catMat[i]) - Math.min(...catMat[i]);
+    if ((diff > 1 && i !== 0) || (diff > 3 && i === 0)) { // gender imbalance is less important
+      issues.push({
+        severity: diff,
+        message: `Imbalanced ${categories[i]} category: ${catMat[i]} students per class respectively.`
+      });
+    }
+  }
+
   return issues;
 }

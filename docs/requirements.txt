@@ -1,27 +1,14 @@
 
-Class number
-
-Compatibility:
-List of teachers can be with (default all, pinning to a teacher)
-List of students where one is guaranteed
-List of students who none are guaranteed
-
-Categories: (columns in spreadsheet, name is heading, blank is no, filled is yes)
-
-Automatically stop at diminishing returns
-The less decision making the better
-Undo feature for ALL changes. Redo feature as well.
-Streamline spreadsheet import and error handling
-Create google form for friend names
-
-TODO:
-Simulated annealing (increasing chance of poor adjustments being accepted)
-Class size re-balancing (support permutations which alter class size)
-Add class size, category imbalance to determineIssues
-Import from local CSV file
-Export CSV file
-Print CSS - columns stacked without category labels or buttons
+HIGH PRIORITY:
+BUG: people are in multiple classes, some students are missing
+BUG: class size changing causes error lists[src] undefined
+Import from local student list CSV file
+Export class lists CSV file
 Finalise documentation
+
+LOW PRIORITY:
+Print CSS - columns stacked without category labels or buttons
 Save to localStorage database of lists
+Create google form for friend names
 Undo - class list state only, not student state
-Pause automatically on 0 issues or after an iteration without changes (say it's finished in a snackbar)
+Colour coded categories
