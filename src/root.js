@@ -48,6 +48,33 @@ class App extends React.Component {
       reader.readAsText(evt.target.files[0]);
     });
   }
+  downloadFile (filename, data) {
+    let blob = new Blob([data], {type: 'text/csv'}),
+        elem = document.createElement('a');
+    elem.href = window.URL.createObjectURL(blob);
+    elem.download = filename;
+    document.body.appendChild(elem);
+    elem.click();
+    document.body.removeChild(elem);
+  }
+  export (e) {
+    // first we format the data as a matrix of values
+    let rows = [this.state.teacherNames];
+    for (let i = 0; i < Math.max(...this.state.lists.map(l=>l.length)); i++) {
+      const row = [];
+      for (let j = 0; j < this.state.lists.length; j++) {
+        if (i < this.state.lists[j].length)
+          row.push(this.state.students[this.state.lists[j][i]].name);
+        else row.push("");
+      }
+      // add quotes to escape commas in names in case they pop up
+      rows.push(row.map(val => `"${val}"`));
+    }
+    // next we turn it to CSV
+    let string = rows.map(row => row.join(",")).join("\n");
+    // finally we download
+    this.downloadFile("class_lists.csv", string);
+  }
   dummyFileImport () {
     return new Promise((resolve, reject) =>
       fetch('./dummy.csv')
@@ -142,7 +169,7 @@ class App extends React.Component {
         )}
         <Header
           import={e => this.import(this.handleFileUpload(e))}
-          export={() => {}}
+          export={this.export.bind(this)}
           openListManager={() => {}}
           toggleState={this.toggleState.bind(this)}
           save={() => {}}
