@@ -38,25 +38,36 @@ class App extends React.Component {
       issues: [],
       viMod: false, // view issues modal open
     };
-    // after 5 iterations which change nothing, pause
+    // after 20 iterations which change nothing, pause
     this.numUselessIterations = 0;
   }
-  import () {
-    // Insert dummy values for now
-    fetch('./dummy.csv')
-      .then(response => {
-        if (response.status !== 200) return console.error(response.status);
-        response.text().then(data => {
-          // This adds numClasses, classSize, teacherNames, categories,
-          //   students, studentNames and lists to the state
-          const parsed = parseCSVSpreadsheet(data);
-          const lists = generateRandomList(
-            parsed.studentNames, parsed.numClasses
-          );
-          const issues = determineIssues(lists, parsed.students, parsed.classSize, parsed.categories, parsed.teacherNames);
-          this.setState({ ...parsed, lists, issues });
+  handleFileUpload (evt) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => resolve(e.target.result);
+      reader.readAsText(evt.target.files[0]);
+    });
+  }
+  dummyFileImport () {
+    return new Promise((resolve, reject) =>
+      fetch('./dummy.csv')
+        .then(response => {
+          if (response.status !== 200) reject(response.status);
+          else response.text().then(resolve);
         })
-      }).catch(console.log);
+    );
+  }
+  import (promise) {
+    promise.then(data => {
+      // This adds numClasses, classSize, teacherNames, categories,
+      //   students, studentNames and lists to the state
+      const parsed = parseCSVSpreadsheet(data);
+      const lists = generateRandomList(
+        parsed.studentNames, parsed.numClasses
+      );
+      const issues = determineIssues(lists, parsed.students, parsed.classSize, parsed.categories, parsed.teacherNames);
+      this.setState({ ...parsed, lists, issues });
+    }).catch(console.log);
   }
   toggleState (newState) {
     if (newState === "working" && this.state.state !== "working")
@@ -82,7 +93,7 @@ class App extends React.Component {
       this.numUselessIterations++;
     else
       this.numUselessIterations = 0;
-    if (this.numUselessIterations >= 5 || issues.length === 0) {
+    if (this.numUselessIterations >= 20 || issues.length === 0) {
       this.toggleState("working");
       this.numUselessIterations = 0;
     }
@@ -112,15 +123,18 @@ class App extends React.Component {
         ) : (
           <Box className={classes.fallback}>
             Please &nbsp;
-            <Button onClick={this.import.bind(this)}
+            <Button component="label"
               size='large' color='primary' variant='contained'>
               import
+              <input type="file" style={{ display: "none" }}
+                onChange={e => this.import(this.handleFileUpload(e))}/>
             </Button>
+  
             &nbsp; a spreadsheet
           </Box>
         )}
         <Header
-          import={this.import.bind(this)}
+          import={e => this.import(this.handleFileUpload(e))}
           export={() => {}}
           openListManager={() => {}}
           toggleState={this.toggleState.bind(this)}

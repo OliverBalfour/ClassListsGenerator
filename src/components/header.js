@@ -97,8 +97,10 @@ export default function Header (props) {
           <Paper>
             <ClickAwayListener onClickAway={handleClose}>
               <MenuList id="split-button-menu">
-                <MenuItem onClick={()=>{setMenuOpen(false); props.import()}}>
+                <MenuItem component="label">
                   Import Spreadsheet (CSV)
+                  <input type="file" style={{ display: "none" }}
+                    onChange={e => {setMenuOpen(false); props.import(e)}}/>
                 </MenuItem>
                 <MenuItem onClick={()=>{setMenuOpen(false); props.export()}}>
                   Export Spreadsheet (CSV)
