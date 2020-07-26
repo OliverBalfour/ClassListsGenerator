@@ -129,8 +129,15 @@ class App extends React.Component {
               <input type="file" style={{ display: "none" }}
                 onChange={e => this.import(this.handleFileUpload(e))}/>
             </Button>
-  
-            &nbsp; a spreadsheet
+            &nbsp; a spreadsheet&nbsp;
+            <span style={{fontSize: "1rem"}}>
+              (or&nbsp;
+              <span onClick={()=>this.import(this.dummyFileImport())}
+                style={{color:"blue",textDecoration:"underline",cursor:"pointer"}}>
+                see a demo
+              </span>
+              )
+            </span>
           </Box>
         )}
         <Header
