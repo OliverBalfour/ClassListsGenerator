@@ -1,30 +1,40 @@
 
+import {generateRandomList} from './algorithm.js';
+
+const safeSplitComma = string => {
+  // we can have commas in strings delimited by "these quotes"
+  // this works around that
+  var inString = false;
+  var items = [];
+  var currentItem = '';
+  for (let c of string) {
+    if (c === '"') {
+      inString = !inString;
+      continue;
+    }
+    if (inString || c !== ',') {
+      currentItem += c;
+    } else {
+      items.push(currentItem.trim());
+      currentItem = '';
+    }
+  }
+  items.push(currentItem.trim());
+  return items;
+}
+
 export function parseCSVSpreadsheet (rawDataString) {
   var lines = rawDataString.split(/[\r\n]+/); // split by all 3 line endings
   while (lines.indexOf("") !== -1) lines.splice(lines.indexOf(""), 1);
 
-  const safeSplitComma = string => {
-    // we can have commas in strings delimited by "these quotes"
-    // this works around that
-    var inString = false;
-    var items = [];
-    var currentItem = '';
-    for (let c of string) {
-      if (c === '"') {
-        inString = !inString;
-        continue;
-      }
-      if (inString || c !== ',') {
-        currentItem += c;
-      } else {
-        items.push(currentItem.trim());
-        currentItem = '';
-      }
-    }
-    items.push(currentItem.trim());
-    return items;
-  }
+  var data = parseRequirements(lines);
 
+  data.lists = generateRandomList(data.studentNames, data.numClasses);
+
+  return data;
+}
+
+function parseRequirements (lines) {
   var numClasses = parseInt(lines[1].split(",")[5]);
   var minStudents = parseInt(lines[1].split(",")[1]);
   var maxStudents = parseInt(lines[1].split(",")[2]);
@@ -36,7 +46,6 @@ export function parseCSVSpreadsheet (rawDataString) {
   var studentNames = lines.slice(6).map(l => l.substring(0, l.indexOf(',')));
   for (let i = 6; i < lines.length; i++) {
     var row = safeSplitComma(lines[i]);
-    if (row.length < 10) console.log("Is there a / at the end of the URL?");
     students.push({
       name: row[0],
       categories: [row[1] === "F",
@@ -69,21 +78,63 @@ export function parseCSVSpreadsheet (rawDataString) {
   }
 }
 
-export function generateRandomList (studentNames, numClasses) {
-  const shuffle = a => {
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
+const commasep = numCols => list => {
+  let s = list.map(x => {
+    const y = x.toString();
+    return (y.indexOf(',') === -1 || (y[0] === '"' && y[y.length-1]==='"')) ? y : `"${y}"`;
+  }).join(',');
+  for (let i = 0; i < numCols - list.length; i++)
+    s += ',';
+  return s;
+}
+
+function listsToCSV (state,sep) {
+  // first we format the data as a matrix of values
+  let rows = [state.teacherNames];
+  for (let i = 0; i < Math.max(...state.lists.map(l=>l.length)); i++) {
+    const row = [];
+    for (let j = 0; j < state.lists.length; j++) {
+      if (i < state.lists[j].length)
+        row.push(state.students[state.lists[j][i]].name);
+      else row.push("");
     }
-    return a;
-  };
-  var listIndices = shuffle(studentNames.map((_,i)=>i));
-  var lists = [];
-  var lastIndex = 0;
-  let k = Math.ceil(studentNames.length/numClasses);
-  for (let i = 0; i < numClasses; i++) {
-    lists.push(listIndices.slice(lastIndex, lastIndex + k));
-    lastIndex += k;
+    // add quotes to escape commas in names in case they pop up
+    rows.push(row.map(val => `"${val}"`));
   }
-  return lists;
+  // next we turn it to CSV
+  let string = rows.map(sep).join("\n");
+  return string;
+}
+
+function requirementsToCSV (state,sep) {
+  let lines = [];
+  lines.push(sep(['','Min','Max']));
+  lines.push(sep(['Students per class',state.classSize[0],state.classSize[1],'','No. classes',state.teacherNames.length,'','Teachers',...state.teacherNames]));
+  lines.push(sep([]));
+  lines.push(sep([]));
+  lines.push(sep(['Required','Optional','','','','','','','','Custom categories']));
+  lines.push(sep(['Name','Gender','Friend 1','Friend 2','Friend 3','Friend 4','Friend 5',"Can't be with",'Must be with','Possible teachers',...state.categories]));
+  for (let i = 0; i < state.students.length; i++) {
+    var s = state.students[i];
+    var f = n => state.students[n].name;
+    var friends = s.friends.map(f);
+    while (friends.length < 5) friends.push("");
+    var cant = s.cannotBeWith.map(f).join(', ');
+    var must = s.mustBeWith.map(f).join(', ');
+    var teachers = s.possibleTeachers.length === state.teacherNames.length ? "ALL" : s.possibleTeachers.map(n=>state.teacherNames[n]).join(', ');
+    var cats = s.categories.slice(1).map(b => b ? "YES" : "");
+    lines.push(sep([s.name,s.categories[0]?'F':'M',...friends,cant,must,teachers,...cats]));
+  }
+  return lines.join('\n');
+}
+
+function issuesToCSV (state,sep) {
+  return sep(["Issues:"]) + '\n' + state.issues.map(is => sep([is.message])).join('\n');
+}
+
+export function unparseCSVSpreadsheet (state) {
+  const numCols = Math.max(state.teacherNames.length + 8, state.categories.length + 10);
+  const sep = commasep(numCols);
+  const blank = '\n'+sep([]);
+  return [listsToCSV(state,sep), requirementsToCSV(state,sep), issuesToCSV(state,sep)].join(blank+blank+'\n');
 }

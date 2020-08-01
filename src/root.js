@@ -3,9 +3,9 @@ import { Box, Button, withStyles } from '@material-ui/core';
 import Header from './components/header.js';
 import ColumnList from './components/columnlist.js';
 import { EditStudentDialog, ViewIssuesDialog } from './components/dialogs.js';
-import { determineIssues } from './tools/algorithm.js';
+import { determineIssues, generateRandomList } from './tools/algorithm.js';
 import worker from 'workerize-loader!./worker'; // eslint-disable-line import/no-webpack-loader-syntax
-import { parseCSVSpreadsheet, generateRandomList } from './tools/parser.js';
+import { parseCSVSpreadsheet, unparseCSVSpreadsheet } from './tools/parser.js';
 
 const styles = theme => ({
   root: {
@@ -66,20 +66,7 @@ class App extends React.Component {
     document.body.removeChild(elem);
   }
   export (e) {
-    // first we format the data as a matrix of values
-    let rows = [this.state.teacherNames];
-    for (let i = 0; i < Math.max(...this.state.lists.map(l=>l.length)); i++) {
-      const row = [];
-      for (let j = 0; j < this.state.lists.length; j++) {
-        if (i < this.state.lists[j].length)
-          row.push(this.state.students[this.state.lists[j][i]].name);
-        else row.push("");
-      }
-      // add quotes to escape commas in names in case they pop up
-      rows.push(row.map(val => `"${val}"`));
-    }
-    // next we turn it to CSV
-    let string = rows.map(row => row.join(",")).join("\n");
+    const string = unparseCSVSpreadsheet(this.state);
     // finally we download
     this.downloadFile("class_lists.csv", string);
   }
@@ -97,11 +84,7 @@ class App extends React.Component {
       // This adds numClasses, classSize, teacherNames, categories,
       //   students, studentNames and lists to the state
       const parsed = parseCSVSpreadsheet(data);
-      const lists = generateRandomList(
-        parsed.studentNames, parsed.numClasses
-      );
-      this.setState({ ...parsed, lists });
-      this.setState({ issues: determineIssues(this.state) });
+      this.setState({ ...parsed, issues: determineIssues(parsed) });
     }).catch(console.log);
   }
   toggleState (newState) {

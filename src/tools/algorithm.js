@@ -144,3 +144,22 @@ export function determineIssues (state) {
 
   return issues;
 }
+
+export function generateRandomList (studentNames, numClasses) {
+  const shuffle = a => {
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  };
+  var listIndices = shuffle(studentNames.map((_,i)=>i));
+  var lists = [];
+  var lastIndex = 0;
+  let k = Math.ceil(studentNames.length/numClasses);
+  for (let i = 0; i < numClasses; i++) {
+    lists.push(listIndices.slice(lastIndex, lastIndex + k));
+    lastIndex += k;
+  }
+  return lists;
+}
