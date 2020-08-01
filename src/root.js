@@ -129,6 +129,12 @@ class App extends React.Component {
   stopWorking () {
     clearInterval(this.intev);
   }
+  restart () {
+    const { studentNames, numClasses, students, classSize, categories, teacherNames } = this.state;
+    const lists = generateRandomList(studentNames, numClasses);
+    const issues = determineIssues(lists, students, classSize, categories, teacherNames);
+    this.setState({ lists, issues });
+  }
   editStudent (student_idx) {
     // open modal to edit student information
     this.setState({editingStudent: student_idx});
@@ -173,9 +179,7 @@ class App extends React.Component {
           openListManager={() => {}}
           toggleState={this.toggleState.bind(this)}
           save={() => {}}
-          restart={() => this.setState({ lists: generateRandomList(
-            this.state.studentNames, this.state.numClasses
-          )})}
+          restart={this.restart.bind(this)}
           state={this.state.state}
           showOptions={this.state.teacherNames.length > 0}
           issues={this.state.issues}
