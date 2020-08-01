@@ -60,7 +60,7 @@ export default function Header (props) {
         onClick={props.restart}
         color='default' variant='contained' style={{marginRight: "10px"}}
       >
-        Start over
+        Restart
       </Button>
     }
     {props.state !== 'editing' &&
@@ -68,7 +68,7 @@ export default function Header (props) {
         onClick={() => props.toggleState('working')}
         color='default' variant='contained'
       >
-        {props.state === 'working' ? 'Pause' : 'Play'}
+        {props.state === 'working' ? 'Stop' : 'Start'}
       </Button>
     }
     <ButtonGroup

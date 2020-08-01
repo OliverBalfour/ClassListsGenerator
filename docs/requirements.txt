@@ -1,8 +1,5 @@
 
 HIGH PRIORITY:
-Generate 100 lists asynchronously in web worker
-- Don't update the display, show a loading bar
-
 Update export feature
 - Include constraints below the class lists
 - Include issues below constraints

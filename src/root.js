@@ -3,7 +3,8 @@ import { Box, Button, withStyles } from '@material-ui/core';
 import Header from './components/header.js';
 import ColumnList from './components/columnlist.js';
 import { EditStudentDialog, ViewIssuesDialog } from './components/dialogs.js';
-import { iterate, determineIssues } from './tools/algorithm.js';
+import { determineIssues } from './tools/algorithm.js';
+import worker from 'workerize-loader!./worker'; // eslint-disable-line import/no-webpack-loader-syntax
 import { parseCSVSpreadsheet, generateRandomList } from './tools/parser.js';
 
 const styles = theme => ({
@@ -38,6 +39,13 @@ class App extends React.Component {
       issues: [],
       viMod: false, // view issues modal open
     };
+    this.workerInst = worker();
+    this.workerInst.addEventListener('message', message => {
+      if (this.state.state === 'working') {
+        this.setState(message.data);
+        this.stopWorking();
+      }
+    });
     // after 20 iterations which change nothing, pause
     this.numUselessIterations = 0;
   }
@@ -107,30 +115,16 @@ class App extends React.Component {
       this.setState({ state: 'import' });
   }
   startWorking () {
-    this.worker();
-    this.intev = setInterval(this.worker.bind(this), 500);
-  }
-  worker () {
-    const { lists, issues } = iterate(this.state);
-    // This assumes all issues are equal; it's a decent approximation
-    if (this.state.issues.length === issues.length)
-      this.numUselessIterations++;
-    else
-      this.numUselessIterations = 0;
-    if (this.numUselessIterations >= 20 || issues.length === 0) {
-      this.toggleState("working");
-      this.numUselessIterations = 0;
-    }
-    this.setState({ lists, issues });
+    this.workerInst.runAlgorithm(this.state);
   }
   stopWorking () {
-    clearInterval(this.intev);
+    this.setState({ state: 'view' });
   }
   restart () {
     this.stopWorking();
     const { studentNames, numClasses } = this.state;
     const lists = generateRandomList(studentNames, numClasses);
-    const issues = determineIssues(this.state);
+    const issues = determineIssues({...this.state, lists});
     this.setState({ lists, issues, state: "view" });
   }
   editStudent (student_idx) {

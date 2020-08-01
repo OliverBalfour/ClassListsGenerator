@@ -12,33 +12,26 @@ export function iterate (state) {
   // Initially we choose the first five moves that reduce cost of up to 100 moves
   // By the end we string multiple moves together (up to 10 consecutively)
   // And they can increase cost with a low probability
-  let maxChanges = 5,
-      maxAttemptedChanges = 100,
-      maxPermutationSteps = 5,
-      maxPAcceptWorse = 0.05;
-  for (let i = 0, c = 0; i < maxAttemptedChanges && c < maxChanges; i++) {
+  let maxAttemptedChanges = 1000,
+      maxPermutationSteps = 3,
+      currentCost = cost(state);
+  for (let i = 0; i < maxAttemptedChanges; i++) {
     // if we are 'behind schedule' (not on track to reach c == maxChanges)
     // then we increase the number of permutation steps
     // and increase P(accept worse solution)
-    let schedule = relu(i / maxAttemptedChanges - c / maxChanges),
-        permutationSteps = Math.round(1 + schedule * (maxPermutationSteps - 1)),
-        pAcceptWorse = schedule * maxPAcceptWorse;
     // Generate a new permutation
     let perm = copy(lists);
-    for (let j = 0; j < permutationSteps; j++)
+    let schedule = i / maxAttemptedChanges;
+    for (let j = 0; j < Math.ceil(schedule * maxPermutationSteps); j++)
       perm = generatePermutation(perm, students, classSize);
     // Update the lists
-    if (
-      Math.random() < pAcceptWorse
-      || cost({...state, lists: perm})
-       < cost({...state, lists})
-    ) {
-      c++;
+    let newCost = cost({...state, lists: perm});
+    if (newCost < cost({...state, lists})) {
       lists = perm;
+      currentCost = newCost;
     }
   }
-  const issues = determineIssues(state);
-  return { lists, issues };
+  return { lists, issues: determineIssues({...state, lists}), cost: currentCost };
 }
 
 function generatePermutation(lists, students, classSize) {
@@ -77,7 +70,6 @@ function generatePermutation(lists, students, classSize) {
 const rand = (min, max) => Math.floor(Math.random() * (max - min) + min);
 // Deep copy primitive object/array
 const copy = obj => JSON.parse(JSON.stringify(obj));
-const relu = x => Math.min(0,x);
 
 // Sum severities of the issues list
 function cost (state) {
