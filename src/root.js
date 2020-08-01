@@ -92,8 +92,8 @@ class App extends React.Component {
       const lists = generateRandomList(
         parsed.studentNames, parsed.numClasses
       );
-      const issues = determineIssues(lists, parsed.students, parsed.classSize, parsed.categories, parsed.teacherNames);
-      this.setState({ ...parsed, lists, issues });
+      this.setState({ ...parsed, lists });
+      this.setState({ issues: determineIssues(this.state) });
     }).catch(console.log);
   }
   toggleState (newState) {
@@ -111,10 +111,7 @@ class App extends React.Component {
     this.intev = setInterval(this.worker.bind(this), 500);
   }
   worker () {
-    const { lists, issues } = iterate(
-      this.state.lists, this.state.students, this.state.classSize,
-      this.state.categories, this.state.teacherNames
-    );
+    const { lists, issues } = iterate(this.state);
     // This assumes all issues are equal; it's a decent approximation
     if (this.state.issues.length === issues.length)
       this.numUselessIterations++;
@@ -130,10 +127,11 @@ class App extends React.Component {
     clearInterval(this.intev);
   }
   restart () {
-    const { studentNames, numClasses, students, classSize, categories, teacherNames } = this.state;
+    this.stopWorking();
+    const { studentNames, numClasses } = this.state;
     const lists = generateRandomList(studentNames, numClasses);
-    const issues = determineIssues(lists, students, classSize, categories, teacherNames);
-    this.setState({ lists, issues });
+    const issues = determineIssues(this.state);
+    this.setState({ lists, issues, state: "view" });
   }
   editStudent (student_idx) {
     // open modal to edit student information
@@ -193,8 +191,8 @@ class App extends React.Component {
             updateStudent={student => {
               const students = this.state.students;
               students[this.state.editingStudent] = student;
-              this.setState({ students, editingStudent: -1,
-                issues: determineIssues(this.state.lists, students, this.state.classSize, this.state.categories, this.state.teacherNames) });
+              this.setState({ students, editingStudent: -1 });
+              this.setState({ issues: determineIssues(this.state) });
             }}
             classIdx={classIdx}
             updateStudentClassIdx={newClassIdx => {

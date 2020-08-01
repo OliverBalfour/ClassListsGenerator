@@ -6,7 +6,8 @@
 //  categories::[Bool] - each boolean category should be roughly evenly distributed
 //  mustBeWith::[Int], cannotBeWith::[Int]
 //  possibleTeachers::[Int]
-export function iterate (lists, students, classSize, categories, teachers) {
+export function iterate (state) {
+  let { lists, students, classSize } = state;
   // Use a weird mix of hill climbing and simulated annealing optimisation algorithms
   // Initially we choose the first five moves that reduce cost of up to 100 moves
   // By the end we string multiple moves together (up to 10 consecutively)
@@ -29,14 +30,14 @@ export function iterate (lists, students, classSize, categories, teachers) {
     // Update the lists
     if (
       Math.random() < pAcceptWorse
-      || cost(perm,  students, classSize, categories, teachers)
-       < cost(lists, students, classSize, categories, teachers)
+      || cost({...state, lists: perm})
+       < cost({...state, lists})
     ) {
       c++;
       lists = perm;
     }
   }
-  const issues = determineIssues(lists, students, classSize, categories, teachers);
+  const issues = determineIssues(state);
   return { lists, issues };
 }
 
@@ -68,7 +69,7 @@ function generatePermutation(lists, students, classSize) {
     for (let student of list)
       if (studs[student]) console.error("Duplicated student");
       else studs[student] = true;
-  
+
   return lists;
 }
 
@@ -79,8 +80,8 @@ const copy = obj => JSON.parse(JSON.stringify(obj));
 const relu = x => Math.min(0,x);
 
 // Sum severities of the issues list
-function cost (lists, students, classSize, categories, teachers) {
-  return determineIssues(lists, students, classSize, categories, teachers)
+function cost (state) {
+  return determineIssues(state)
     .map(x => x.severity)
     .reduce((a,b)=>a+b,0);
 }
@@ -89,10 +90,10 @@ function cost (lists, students, classSize, categories, teachers) {
 const searchClasses = (lists, x) =>
   lists.map(list => list.indexOf(x) !== -1).indexOf(true);
 
-// determineIssues :: [[Int]], [Student] -> [{severity::Int, message::String}]
 // Creates a list of issues with a list state for 1) display in a modal
 // and 2) optimisation in `iterate`: minimises \sum_{k\in issues} k_{severity}
-export function determineIssues (lists, students, classSize, categories, teachers) {
+export function determineIssues (state) {
+  let { lists, students, classSize, categories, teacherNames } = state;
   var issues = [];
   for (let j = 0; j < lists.length; j++) {
     const list = lists[j];
@@ -114,22 +115,22 @@ export function determineIssues (lists, students, classSize, categories, teacher
       }
       if (numFriends < 1)
         issues.push({severity: 3, message: `${student.name} is not with any friends.`});
-      // Possible teachers
+      // Possible teacherNames
       if (student.possibleTeachers.indexOf(j) === -1)
-        issues.push({severity: 5, message: `${student.name} must not be in ${teachers[j]}'s class.`});
+        issues.push({severity: 5, message: `${student.name} must not be in ${teacherNames[j]}'s class.`});
     }
     // Class size
     if (list.length < classSize[0]) {
       const severity = classSize[0] - list.length;
       issues.push({
         severity: 8 * severity,
-        message: `${teachers[j]}'s class has ${severity} too few students.`
+        message: `${teacherNames[j]}'s class has ${severity} too few students.`
       });
     } else if (list.length > classSize[1]) {
       const severity = list.length - classSize[1];
       issues.push({
         severity: 10 * severity,
-        message: `${teachers[j]}'s class has ${severity} too many students.`
+        message: `${teacherNames[j]}'s class has ${severity} too many students.`
       });
     }
   }
