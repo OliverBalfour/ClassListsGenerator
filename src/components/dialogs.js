@@ -213,9 +213,10 @@ export function downloadFile (filename, data) {
 }
 
 export function SavedClassesDialog (props) {
-  const exportCSV = idx => {
-    const string = unparseCSVSpreadsheet(props.saves[idx].data);
-    downloadFile("class_lists_"+props.saves[idx].name+".csv", string);
+  const exportCSV = i => {
+    const string = unparseCSVSpreadsheet(props.saves[i].data);
+    const time = new Date(props.saves[i].time).toLocaleString();
+    downloadFile("class_lists_"+props.saves[i].name+"_"+time+".csv", string);
   }
   return (
  <Dialog open={true} onClose={()=>{}} aria-labelledby="form-dialog-title"
@@ -234,7 +235,7 @@ export function SavedClassesDialog (props) {
               {new Date(save.time).toLocaleString()}
             </TableCell>
             <TableCell>
-              <Button color='secondary' variant='contained' onClick={()=>exportCSV(idx)}>
+              <Button color='secondary' variant='contained' onClick={()=>exportCSV(props.saves.length-1-idx)}>
                 Export CSV
               </Button>
             </TableCell>
