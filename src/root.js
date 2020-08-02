@@ -38,16 +38,23 @@ class App extends React.Component {
       editingStudent: -1,
       issues: [],
       viMod: false, // view issues modal open
+      saves: [],
+      version: 1, // if version of autosaved state is different, it does not load
     };
     this.workerInst = worker();
-    this.workerInst.addEventListener('message', message => {
-      if (this.state.state === 'working') {
-        this.setState(message.data);
-        this.stopWorking();
+    this.workerInst.addEventListener('message', this.workerFinished.bind(this));
+    // Reload autosaved state
+    const as = localStorage.getItem('saves');
+    if (as !== null) {
+      const autosaved = JSON.parse(as);
+      if (autosaved[0].data.version === this.state.version) {
+        this.state = JSON.parse(JSON.stringify(autosaved[autosaved.length - 1].data));
+        this.state.saves = autosaved;
+        this.state.state = 'view';
+        this.state.viMod = false;
+        this.state.editingStudent = -1;
       }
-    });
-    // after 20 iterations which change nothing, pause
-    this.numUselessIterations = 0;
+    }
   }
   handleFileUpload (evt) {
     return new Promise((resolve, reject) => {
@@ -67,7 +74,6 @@ class App extends React.Component {
   }
   export (e) {
     const string = unparseCSVSpreadsheet(this.state);
-    // finally we download
     this.downloadFile("class_lists.csv", string);
   }
   dummyFileImport () {
@@ -85,6 +91,7 @@ class App extends React.Component {
       //   students, studentNames, issues and lists to the state
       const parsed = parseCSVSpreadsheet(data);
       this.setState(parsed);
+      this.autosave();
     }).catch(console.log);
   }
   toggleState (newState) {
@@ -103,16 +110,63 @@ class App extends React.Component {
   stopWorking () {
     this.setState({ state: 'view' });
   }
+  workerFinished (message) {
+    if (this.state.state === 'working') {
+      // This is where the class lists are updated
+      this.stopWorking();
+      this.setState(message.data);
+      this.autosave();
+    }
+  }
   restart () {
     this.stopWorking();
     const { studentNames, numClasses } = this.state;
     const lists = generateRandomList(studentNames, numClasses);
     const issues = determineIssues({...this.state, lists});
     this.setState({ lists, issues, state: "view" });
+    this.autosave();
   }
   editStudent (student_idx) {
     // open modal to edit student information
     this.setState({editingStudent: student_idx});
+  }
+  autosave () {
+    // add the current state to the this.state.saves list
+    let { saves, lists, students, classSize, categories, teacherNames,
+      issues, numClasses, studentNames, version } = this.state;
+    saves.push({
+      name: new Date().toLocaleString(),
+      data: { lists, students, classSize, categories, teacherNames,
+        issues, numClasses, studentNames, version }
+    });
+    // TODO: once named saves are added improve this logic to preserve named states and delete only close together states
+    if (saves.length > 10) {
+      const s = saves.length;
+      saves = saves.slice(s-11,s-1);
+    }
+    this.setState({saves, state: 'view', viMod: false, editingStudent: -1});
+    // We need to be very careful about circular references here
+    localStorage.setItem('saves', JSON.stringify(saves));
+  }
+  undo (n) {
+    // n is amount of steps to undo
+    n = n || 1;
+    if (n >= this.state.saves.length) n = this.state.saves.length - 1;
+    let s = this.state.saves,
+        save = s[s.length - n].data,
+        saves = s.slice(0, s.length - n);
+    this.setState({
+      ...save, saves,
+      state: 'view', viMod: false, editingStudent: -1
+    });
+    // We need to be very careful about circular references here
+    localStorage.setItem('saves', JSON.stringify(this.state.saves));
+  }
+  save () {
+    var name = prompt("Please enter the name of the save:");
+    const s = this.state.saves;
+    s[s.length - 1].name = name + ' ' + s[s.length - 1].name;
+    this.setState({saves:s})
   }
   render () {
     const { classes } = this.props;
@@ -153,7 +207,8 @@ class App extends React.Component {
           export={this.export.bind(this)}
           openListManager={() => {}}
           toggleState={this.toggleState.bind(this)}
-          save={() => {}}
+          save={this.save.bind(this)}
+          undo={this.undo.bind(this)}
           restart={this.restart.bind(this)}
           state={this.state.state}
           showOptions={this.state.teacherNames.length > 0}
@@ -170,12 +225,14 @@ class App extends React.Component {
               students[this.state.editingStudent] = student;
               this.setState({ students, editingStudent: -1 });
               this.setState({ issues: determineIssues(this.state) });
+              this.autosave();
             }}
             classIdx={classIdx}
             updateStudentClassIdx={newClassIdx => {
               this.state.lists[classIdx].splice(this.state.lists[classIdx].indexOf(this.state.editingStudent), 1);
               this.state.lists[newClassIdx].push(this.state.editingStudent);
               this.setState({ lists: this.state.lists });
+              this.autosave();
             }}
           />
         )}

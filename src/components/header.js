@@ -80,6 +80,9 @@ export default function Header (props) {
         {props.state === 'editing' ? 'Done Editing' : 'Edit'}
       </Button>
       {props.state !== 'editing' &&
+        <Button onClick={props.undo}>Undo</Button>
+      }
+      {props.state !== 'editing' &&
         <Button onClick={props.save}>Save</Button>
       }
       {props.state !== 'editing' &&
@@ -109,6 +112,9 @@ export default function Header (props) {
                   setMenuOpen(false); props.openListManager()
                 }}>
                   See Saved Class Lists
+                </MenuItem>
+                <MenuItem onClick={()=>localStorage.clear()}>
+                  Clear saved data
                 </MenuItem>
               </MenuList>
             </ClickAwayListener>
