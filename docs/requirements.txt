@@ -1,13 +1,5 @@
 
 HIGH PRIORITY:
-Autosave every list
-- Each time the web worker finishes, add empty name, timestamp, list to array of lists in state
-- Use the 0th element of the saved_lists state instead of a separate lists state
-- Serialise the list to localStorage and load at startup, boot into last list
-
-Save button
-- Give a custom name to the current save
-
 See Saved Class Lists
 - Extract ModalList higher order component from issues modal, or copy/paste
 - Display name (if present), timestamp, and restore button

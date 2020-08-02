@@ -113,7 +113,7 @@ export default function Header (props) {
                 }}>
                   See Saved Class Lists
                 </MenuItem>
-                <MenuItem onClick={()=>localStorage.clear()}>
+                <MenuItem onClick={props.reset}>
                   Clear saved data
                 </MenuItem>
               </MenuList>

@@ -29,7 +29,7 @@ const styles = theme => ({
 class App extends React.Component {
   constructor () {
     super();
-    this.state = {
+    this.defaultState = {
       teacherNames: [],
       lists: [],
       /* either view, working or editing */
@@ -41,20 +41,23 @@ class App extends React.Component {
       saves: [],
       version: 1, // if version of autosaved state is different, it does not load
     };
+    this.state = JSON.parse(JSON.stringify(this.defaultState));
     this.workerInst = worker();
     this.workerInst.addEventListener('message', this.workerFinished.bind(this));
     // Reload autosaved state
+    try {
     const as = localStorage.getItem('saves');
-    if (as !== null) {
-      const autosaved = JSON.parse(as);
-      if (autosaved[0].data.version === this.state.version) {
-        this.state = JSON.parse(JSON.stringify(autosaved[autosaved.length - 1].data));
-        this.state.saves = autosaved;
-        this.state.state = 'view';
-        this.state.viMod = false;
-        this.state.editingStudent = -1;
+      if (as !== null) {
+        const autosaved = JSON.parse(as);
+        if (autosaved[0].data.version === this.state.version) {
+          this.state = JSON.parse(JSON.stringify(autosaved[autosaved.length - 1].data));
+          this.state.saves = autosaved;
+          this.state.state = 'view';
+          this.state.viMod = false;
+          this.state.editingStudent = -1;
+        }
       }
-    }
+    } catch (error) {}
   }
   handleFileUpload (evt) {
     return new Promise((resolve, reject) => {
@@ -90,8 +93,7 @@ class App extends React.Component {
       // This adds numClasses, classSize, teacherNames, categories,
       //   students, studentNames, issues and lists to the state
       const parsed = parseCSVSpreadsheet(data);
-      this.setState(parsed);
-      this.autosave();
+      this.setState(parsed, this.autosave);
     }).catch(console.log);
   }
   toggleState (newState) {
@@ -113,9 +115,7 @@ class App extends React.Component {
   workerFinished (message) {
     if (this.state.state === 'working') {
       // This is where the class lists are updated
-      this.stopWorking();
-      this.setState(message.data);
-      this.autosave();
+      this.setState({...message.data, state: 'view'}, this.autosave);
     }
   }
   restart () {
@@ -123,8 +123,7 @@ class App extends React.Component {
     const { studentNames, numClasses } = this.state;
     const lists = generateRandomList(studentNames, numClasses);
     const issues = determineIssues({...this.state, lists});
-    this.setState({ lists, issues, state: "view" });
-    this.autosave();
+    this.setState({ lists, issues, state: "view" }, this.autosave);
   }
   editStudent (student_idx) {
     // open modal to edit student information
@@ -150,23 +149,26 @@ class App extends React.Component {
   }
   undo (n) {
     // n is amount of steps to undo
-    n = n || 1;
+    // note that the saves includes the current state as the end
+    if (typeof n !== "number") n = 1;
     if (n >= this.state.saves.length) n = this.state.saves.length - 1;
+    if (this.state.saves.length-n <= 0) return; //nothing to undo
+
     let s = this.state.saves,
-        save = s[s.length - n].data,
+        save = s[s.length - n-1].data,
         saves = s.slice(0, s.length - n);
     this.setState({
       ...save, saves,
       state: 'view', viMod: false, editingStudent: -1
     });
     // We need to be very careful about circular references here
-    localStorage.setItem('saves', JSON.stringify(this.state.saves));
+    localStorage.setItem('saves', JSON.stringify(saves));
   }
   save () {
     var name = prompt("Please enter the name of the save:");
     const s = this.state.saves;
     s[s.length - 1].name = name + ' ' + s[s.length - 1].name;
-    this.setState({saves:s})
+    this.setState({saves:s}, () => localStorage.setItem('saves', JSON.stringify(this.state.saves)))
   }
   render () {
     const { classes } = this.props;
@@ -214,6 +216,12 @@ class App extends React.Component {
           showOptions={this.state.teacherNames.length > 0}
           issues={this.state.issues}
           viewIssues={() => this.setState({ viMod: !this.state.viMod })}
+          reset={() => {
+            if (window.confirm("Delete all data?")) {
+              localStorage.clear();
+              this.setState(this.defaultState);
+            }
+          }}
         />
         {this.state.editingStudent < 0 ? null : (
           <EditStudentDialog student_idx={this.state.editingStudent}
@@ -223,16 +231,13 @@ class App extends React.Component {
             updateStudent={student => {
               const students = this.state.students;
               students[this.state.editingStudent] = student;
-              this.setState({ students, editingStudent: -1 });
-              this.setState({ issues: determineIssues(this.state) });
-              this.autosave();
+              this.setState({ issues: determineIssues({...this.state, students}), students, editingStudent: -1 }, this.autosave);
             }}
             classIdx={classIdx}
             updateStudentClassIdx={newClassIdx => {
               this.state.lists[classIdx].splice(this.state.lists[classIdx].indexOf(this.state.editingStudent), 1);
               this.state.lists[newClassIdx].push(this.state.editingStudent);
-              this.setState({ lists: this.state.lists });
-              this.autosave();
+              this.setState({ lists: this.state.lists }, this.autosave);
             }}
           />
         )}
