@@ -82,9 +82,9 @@ class App extends React.Component {
   import (promise) {
     promise.then(data => {
       // This adds numClasses, classSize, teacherNames, categories,
-      //   students, studentNames and lists to the state
+      //   students, studentNames, issues and lists to the state
       const parsed = parseCSVSpreadsheet(data);
-      this.setState({ ...parsed, issues: determineIssues(parsed) });
+      this.setState(parsed);
     }).catch(console.log);
   }
   toggleState (newState) {

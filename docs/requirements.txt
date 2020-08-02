@@ -1,16 +1,5 @@
 
 HIGH PRIORITY:
-Update export feature
-- Include constraints below the class lists
-- Include issues below constraints
-
-Update CSV parser
-- Different sections have different num columns, make invariant to extra commas
-- Parse exported lists
-
-Re-import old list
-- Parse exported list, constraints first, then lists (ignore issues)
-
 Autosave every list
 - Each time the web worker finishes, add empty name, timestamp, list to array of lists in state
 - Use the 0th element of the saved_lists state instead of a separate lists state

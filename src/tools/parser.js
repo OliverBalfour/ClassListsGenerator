@@ -1,5 +1,5 @@
 
-import {generateRandomList} from './algorithm.js';
+import {generateRandomList,determineIssues} from './algorithm.js';
 
 const safeSplitComma = string => {
   // we can have commas in strings delimited by "these quotes"
@@ -26,12 +26,46 @@ const safeSplitComma = string => {
 export function parseCSVSpreadsheet (rawDataString) {
   var lines = rawDataString.split(/[\r\n]+/); // split by all 3 line endings
   while (lines.indexOf("") !== -1) lines.splice(lines.indexOf(""), 1);
+  var data;
 
-  var data = parseRequirements(lines);
+  if (lines[0][0] === ',') {
+    // requirements only
+    data = parseRequirements(lines);
+    data.lists = generateRandomList(data.studentNames, data.numClasses);
+  } else {
+    // exported sheet (lists, two blank lines, requirements, two blank lines, issues)
+    let blanks = 0, blankIdxs = [];
+    for (let i = 0; i < lines.length; i++) {
+      if (isBlankLine(lines[i])) blanks++;
+      else blanks = 0;
+      if (blanks === 2) {
+        blanks = 0;
+        blankIdxs.push(i);
+      }
+    }
+    // 0 to blankIdxs[0]-1 exclusive is class list
+    // blankIdxs[0]+1 to blankIdxs[1]-1 exclusive is requirements list
+    data = parseRequirements(lines.slice(blankIdxs[0]+1, blankIdxs[1]-1));
+    data.lists = parseClassLists(data, lines.slice(0, blankIdxs[0]-1));
+  }
 
-  data.lists = generateRandomList(data.studentNames, data.numClasses);
+  data.issues = determineIssues(data);
 
   return data;
+}
+
+function parseClassLists (state, lines) {
+  const cols = state.teacherNames.length;
+  const extractCols = line => line.split(',').slice(0,cols).map(x=>x.substring(1,x.length-1));
+  const lists = state.teacherNames.map(x=>[]);
+  const idxFromName = name => state.studentNames.indexOf(name);
+  for (let i = 1; i < lines.length; i ++) {
+    const names = extractCols(lines[i]);
+    for (let j = 0; j < cols; j++) {
+      lists[j].push(idxFromName(names[j]));
+    }
+  }
+  return lists;
 }
 
 function parseRequirements (lines) {
@@ -40,11 +74,11 @@ function parseRequirements (lines) {
   var maxStudents = parseInt(lines[1].split(",")[2]);
 
   var teacherNames = safeSplitComma(lines[1]).slice(8).filter(x=>x.length>0);
-  var categories = ["Female", ...safeSplitComma(lines[5]).slice(10)];
+  var categories = ["Female", ...safeSplitComma(lines[4]).slice(10)];
 
   var students = [];
-  var studentNames = lines.slice(6).map(l => l.substring(0, l.indexOf(',')));
-  for (let i = 6; i < lines.length; i++) {
+  var studentNames = lines.slice(5).map(l => l.substring(0, l.indexOf(',')));
+  for (let i = 5; i < lines.length; i++) {
     var row = safeSplitComma(lines[i]);
     students.push({
       name: row[0],
@@ -78,6 +112,8 @@ function parseRequirements (lines) {
   }
 }
 
+const isBlankLine = line => line.split('').filter(c => c !== ',').length === 0;
+
 const commasep = numCols => list => {
   let s = list.map(x => {
     const y = x.toString();
@@ -110,7 +146,6 @@ function requirementsToCSV (state,sep) {
   let lines = [];
   lines.push(sep(['','Min','Max']));
   lines.push(sep(['Students per class',state.classSize[0],state.classSize[1],'','No. classes',state.teacherNames.length,'','Teachers',...state.teacherNames]));
-  lines.push(sep([]));
   lines.push(sep([]));
   lines.push(sep(['Required','Optional','','','','','','','','Custom categories']));
   lines.push(sep(['Name','Gender','Friend 1','Friend 2','Friend 3','Friend 4','Friend 5',"Can't be with",'Must be with','Possible teachers',...state.categories]));
