@@ -60,4 +60,8 @@ There are two ways of exporting the class list. One is to print the website. Man
 
 Click the three dots in the top right when you are not in editing mode, and then click `Export spreadsheet (CSV)`. This will download another CSV file for you with the generated class lists. When you have this file, you can import it into Excel or Google Sheets again. In Google Sheets, you do this by pressing File > Import > Upload, then finding your CSV file.
 
+![Importing back into Google Sheets](./images/sheets-import.png)
+
+Once you have exported your class list, so long as you do not edit the CSV file, you can re-import it back into the app by pressing 'Import' as usual, either on the start screen or by pressing the three dots, then `Import spreadsheet (CSV)`. You can import it into Google Sheets and edit it there without conflict, however the CSV sheet will still be the same if you re-import it.
+
 ## Step 7: Celebrate!

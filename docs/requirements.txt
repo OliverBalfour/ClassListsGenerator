@@ -1,12 +1,24 @@
 
 HIGH PRIORITY:
-Import from local student list CSV file
-Export class lists CSV file
-Finalise documentation
+Autosave every list
+- Each time the web worker finishes, add empty name, timestamp, list to array of lists in state
+- Use the 0th element of the saved_lists state instead of a separate lists state
+- Serialise the list to localStorage and load at startup, boot into last list
+
+Save button
+- Give a custom name to the current save
+
+See Saved Class Lists
+- Extract ModalList higher order component from issues modal, or copy/paste
+- Display name (if present), timestamp, and restore button
+- Restore moves the save to the front of the saves list
+
+Print CSS for export with issues
+- Class columns stacked vertically without labels
+- Separate issue page
+
+Manually set priority of each issue
+- Add fields to spreadsheet (but not to app as it is a lot of work)
 
 LOW PRIORITY:
-Print CSS - columns stacked without category labels or buttons
-Save to localStorage database of lists
-Create google form for friend names
-Undo - class list state only, not student state
-Colour coded categories
+Create Google Form for friend names

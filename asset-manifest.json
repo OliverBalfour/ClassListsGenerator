@@ -1,19 +1,21 @@
 {
   "files": {
-    "main.js": "/ClassListsGenerator/static/js/main.00b48e04.chunk.js",
-    "main.js.map": "/ClassListsGenerator/static/js/main.00b48e04.chunk.js.map",
+    "main.js": "/ClassListsGenerator/static/js/main.59226013.chunk.js",
+    "main.js.map": "/ClassListsGenerator/static/js/main.59226013.chunk.js.map",
     "runtime-main.js": "/ClassListsGenerator/static/js/runtime-main.7685c764.js",
     "runtime-main.js.map": "/ClassListsGenerator/static/js/runtime-main.7685c764.js.map",
-    "static/js/2.88add17e.chunk.js": "/ClassListsGenerator/static/js/2.88add17e.chunk.js",
-    "static/js/2.88add17e.chunk.js.map": "/ClassListsGenerator/static/js/2.88add17e.chunk.js.map",
+    "static/js/2.cea7fe53.chunk.js": "/ClassListsGenerator/static/js/2.cea7fe53.chunk.js",
+    "static/js/2.cea7fe53.chunk.js.map": "/ClassListsGenerator/static/js/2.cea7fe53.chunk.js.map",
+    "4e3212f62110c66d90a7.worker.js": "/ClassListsGenerator/4e3212f62110c66d90a7.worker.js",
+    "4e3212f62110c66d90a7.worker.js.map": "/ClassListsGenerator/4e3212f62110c66d90a7.worker.js.map",
     "index.html": "/ClassListsGenerator/index.html",
-    "precache-manifest.2f921e1b47c4ad36951f2c8e56bebf6c.js": "/ClassListsGenerator/precache-manifest.2f921e1b47c4ad36951f2c8e56bebf6c.js",
+    "precache-manifest.9b8903d2a127faf17082c99a171a9a86.js": "/ClassListsGenerator/precache-manifest.9b8903d2a127faf17082c99a171a9a86.js",
     "service-worker.js": "/ClassListsGenerator/service-worker.js",
-    "static/js/2.88add17e.chunk.js.LICENSE.txt": "/ClassListsGenerator/static/js/2.88add17e.chunk.js.LICENSE.txt"
+    "static/js/2.cea7fe53.chunk.js.LICENSE.txt": "/ClassListsGenerator/static/js/2.cea7fe53.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.7685c764.js",
-    "static/js/2.88add17e.chunk.js",
-    "static/js/main.00b48e04.chunk.js"
+    "static/js/2.cea7fe53.chunk.js",
+    "static/js/main.59226013.chunk.js"
   ]
 }
