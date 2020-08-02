@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Button, withStyles } from '@material-ui/core';
 import Header from './components/header.js';
 import ColumnList from './components/columnlist.js';
-import { EditStudentDialog, ViewIssuesDialog } from './components/dialogs.js';
+import { EditStudentDialog, ViewIssuesDialog, SavedClassesDialog, downloadFile } from './components/dialogs.js';
 import { determineIssues, generateRandomList } from './tools/algorithm.js';
 import worker from 'workerize-loader!./worker'; // eslint-disable-line import/no-webpack-loader-syntax
 import { parseCSVSpreadsheet, unparseCSVSpreadsheet } from './tools/parser.js';
@@ -37,7 +37,7 @@ class App extends React.Component {
       // if positive, modal is open with that index student's config
       editingStudent: -1,
       issues: [],
-      viMod: false, // view issues modal open
+      viMod: false, clMod: false, // view issues modal open
       saves: [],
       version: 1, // if version of autosaved state is different, it does not load
     };
@@ -53,7 +53,7 @@ class App extends React.Component {
           this.state = JSON.parse(JSON.stringify(autosaved[autosaved.length - 1].data));
           this.state.saves = autosaved;
           this.state.state = 'view';
-          this.state.viMod = false;
+          this.state.viMod = this.state.clMod = false;
           this.state.editingStudent = -1;
         }
       }
@@ -66,18 +66,9 @@ class App extends React.Component {
       reader.readAsText(evt.target.files[0]);
     });
   }
-  downloadFile (filename, data) {
-    let blob = new Blob([data], {type: 'text/csv'}),
-        elem = document.createElement('a');
-    elem.href = window.URL.createObjectURL(blob);
-    elem.download = filename;
-    document.body.appendChild(elem);
-    elem.click();
-    document.body.removeChild(elem);
-  }
-  export (e) {
+  exportCSV (e) {
     const string = unparseCSVSpreadsheet(this.state);
-    this.downloadFile("class_lists.csv", string);
+    downloadFile("class_lists.csv", string);
   }
   dummyFileImport () {
     return new Promise((resolve, reject) =>
@@ -88,7 +79,7 @@ class App extends React.Component {
         })
     );
   }
-  import (promise) {
+  importCSV (promise) {
     promise.then(data => {
       // This adds numClasses, classSize, teacherNames, categories,
       //   students, studentNames, issues and lists to the state
@@ -134,16 +125,24 @@ class App extends React.Component {
     let { saves, lists, students, classSize, categories, teacherNames,
       issues, numClasses, studentNames, version } = this.state;
     saves.push({
-      name: new Date().toLocaleString(),
+      name: "",
+      time: new Date().getTime(),
       data: { lists, students, classSize, categories, teacherNames,
         issues, numClasses, studentNames, version }
     });
-    // TODO: once named saves are added improve this logic to preserve named states and delete only close together states
-    if (saves.length > 10) {
-      const s = saves.length;
-      saves = saves.slice(s-11,s-1);
+    // allow only the most recent 10 unnamed saves; named ones are preserved
+    let unnamed = [];
+    for (let i = 0; i < saves.length; i++) {
+      if (saves[i].name === '') {
+        unnamed.push(i);
+      }
     }
-    this.setState({saves, state: 'view', viMod: false, editingStudent: -1});
+    let remove = unnamed.slice(0, unnamed.length - 10);
+    remove.reverse();
+    for (let i = 0; i < remove.length; i++) {
+      saves.splice(remove[i],1);
+    }
+    this.setState({saves, state: 'view', viMod: false, clMod: false, editingStudent: -1});
     // We need to be very careful about circular references here
     localStorage.setItem('saves', JSON.stringify(saves));
   }
@@ -159,15 +158,21 @@ class App extends React.Component {
         saves = s.slice(0, s.length - n);
     this.setState({
       ...save, saves,
-      state: 'view', viMod: false, editingStudent: -1
+      state: 'view', viMod: false, clMod: false, editingStudent: -1
     });
     // We need to be very careful about circular references here
     localStorage.setItem('saves', JSON.stringify(saves));
   }
+  restoreOldState (save) {
+    // restore this.state.saves[idx]
+    // we keep the saves the same except we repeat the old save at the top
+    // TODO: preserve name on restoration
+    this.setState(save.data, this.autosave);
+  }
   save () {
     var name = prompt("Please enter the name of the save:");
     const s = this.state.saves;
-    s[s.length - 1].name = name + ' ' + s[s.length - 1].name;
+    s[s.length - 1].name = name;
     this.setState({saves:s}, () => localStorage.setItem('saves', JSON.stringify(this.state.saves)))
   }
   render () {
@@ -191,12 +196,12 @@ class App extends React.Component {
               size='large' color='primary' variant='contained'>
               import
               <input type="file" style={{ display: "none" }}
-                onChange={e => this.import(this.handleFileUpload(e))}/>
+                onChange={e => this.importCSV(this.handleFileUpload(e))}/>
             </Button>
             &nbsp; a spreadsheet&nbsp;
             <span style={{fontSize: "1rem"}}>
               (or&nbsp;
-              <span onClick={()=>this.import(this.dummyFileImport())}
+              <span onClick={()=>this.importCSV(this.dummyFileImport())}
                 style={{color:"blue",textDecoration:"underline",cursor:"pointer"}}>
                 see a demo
               </span>
@@ -205,9 +210,9 @@ class App extends React.Component {
           </Box>
         )}
         <Header
-          import={e => this.import(this.handleFileUpload(e))}
-          export={this.export.bind(this)}
-          openListManager={() => {}}
+          importCSV={e => this.importCSV(this.handleFileUpload(e))}
+          exportCSV={this.exportCSV.bind(this)}
+          openListManager={() => this.setState({ clMod: !this.state.clMod })}
           toggleState={this.toggleState.bind(this)}
           save={this.save.bind(this)}
           undo={this.undo.bind(this)}
@@ -217,7 +222,7 @@ class App extends React.Component {
           issues={this.state.issues}
           viewIssues={() => this.setState({ viMod: !this.state.viMod })}
           reset={() => {
-            if (window.confirm("Delete all data?")) {
+            if (window.prompt("This action will delete ALL data. Type YES to confirm, or leave blank to cancel.", "NO") === "YES") {
               localStorage.clear();
               this.setState(this.defaultState);
             }
@@ -244,6 +249,12 @@ class App extends React.Component {
         {!this.state.viMod ? null : (
           <ViewIssuesDialog issues={this.state.issues}
             close={() => this.setState({ viMod: !this.state.viMod })} />
+        )}
+        {!this.state.clMod ? null : (
+          <SavedClassesDialog saves={this.state.saves}
+            close={() => this.setState({ clMod: !this.state.clMod })}
+            restore={this.restoreOldState.bind(this)}
+            />
         )}
       </Box>
     );

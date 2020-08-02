@@ -1,4 +1,5 @@
 import React from 'react';
+import {unparseCSVSpreadsheet} from '../tools/parser.js';
 import {
   TextField, Dialog, DialogActions, DialogContent, DialogContentText,
   DialogTitle, Button, FormLabel, FormControl, FormGroup, FormControlLabel,
@@ -54,7 +55,7 @@ export function EditStudentDialog (props) {
       var invalidIdx = stud[key].indexOf(-1);
       if (invalidIdx !== -1) nameError = value.split(",")[invalidIdx];
     }
-    
+
     // Validation
     if (student.possibleTeachers.length === 0) {
       setErrorMessage("Cannot have zero possible teachers.");
@@ -186,6 +187,61 @@ export function ViewIssuesDialog (props) {
           <TableRow key={idx}>
             <TableCell>
               {issue.message}
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  </DialogContent>
+  <DialogActions>
+    <Button color="primary" onClick={props.close}>
+      Close
+    </Button>
+  </DialogActions>
+</Dialog>
+  );
+}
+
+export function downloadFile (filename, data) {
+  let blob = new Blob([data], {type: 'text/csv'}),
+      elem = document.createElement('a');
+  elem.href = window.URL.createObjectURL(blob);
+  elem.download = filename;
+  document.body.appendChild(elem);
+  elem.click();
+  document.body.removeChild(elem);
+}
+
+export function SavedClassesDialog (props) {
+  const exportCSV = idx => {
+    const string = unparseCSVSpreadsheet(props.saves[idx].data);
+    downloadFile("class_lists_"+props.saves[idx].name+".csv", string);
+  }
+  return (
+ <Dialog open={true} onClose={()=>{}} aria-labelledby="form-dialog-title"
+    fullWidth={true} maxWidth="md">
+  <DialogTitle id="form-dialog-title">Saved class lists</DialogTitle>
+  <DialogContent>
+    <Table size='small'>
+      <TableBody>
+        {/* we want them in reverse order, so newest is at the top */}
+        {props.saves.slice(0).reverse().map((save, idx) => (
+          <TableRow key={idx}>
+            <TableCell>
+              <strong>{save.name}</strong>
+            </TableCell>
+            <TableCell>
+              {new Date(save.time).toLocaleString()}
+            </TableCell>
+            <TableCell>
+              <Button color='secondary' variant='contained' onClick={()=>exportCSV(idx)}>
+                Export CSV
+              </Button>
+            </TableCell>
+            <TableCell>
+              <Button color='secondary' variant='contained' onClick={()=>props.restore(save)}>
+                Restore
+              </Button>
             </TableCell>
           </TableRow>
         ))}

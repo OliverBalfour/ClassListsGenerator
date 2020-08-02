@@ -103,9 +103,9 @@ export default function Header (props) {
                 <MenuItem component="label">
                   Import Spreadsheet (CSV)
                   <input type="file" style={{ display: "none" }}
-                    onChange={e => {setMenuOpen(false); props.import(e)}}/>
+                    onChange={e => {setMenuOpen(false); props.importCSV(e)}}/>
                 </MenuItem>
-                <MenuItem onClick={()=>{setMenuOpen(false); props.export()}}>
+                <MenuItem onClick={()=>{setMenuOpen(false); props.exportCSV()}}>
                   Export Spreadsheet (CSV)
                 </MenuItem>
                 <MenuItem onClick={()=>{

@@ -1,10 +1,5 @@
 
 HIGH PRIORITY:
-See Saved Class Lists
-- Extract ModalList higher order component from issues modal, or copy/paste
-- Display name (if present), timestamp, and restore button
-- Restore moves the save to the front of the saves list
-
 Print CSS for export with issues
 - Class columns stacked vertically without labels
 - Separate issue page
