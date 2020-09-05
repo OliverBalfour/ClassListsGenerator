@@ -73,14 +73,15 @@ function parseRequirements (lines) {
   var minStudents = parseInt(lines[1].split(",")[1]);
   var maxStudents = parseInt(lines[1].split(",")[2]);
 
-  var teacherNames = safeSplitComma(lines[1]).slice(8).filter(x=>x.length>0);
-  var categories = ["Female", ...safeSplitComma(lines[4]).slice(10)];
+  var teacherNames = safeSplitComma(lines[1])[8].split(',').map(x=>x.trim());
+  var categories = ["Female", ...safeSplitComma(lines[4]).slice(11)];
 
   var students = [];
-  var studentNames = lines.slice(5).map(l => l.substring(0, l.indexOf(',')));
+  var studentNames = lines.slice(5).map(safeSplitComma).map(x=>x[1]);
   for (let i = 5; i < lines.length; i++) {
-    var row = safeSplitComma(lines[i]);
+    var row = safeSplitComma(lines[i]).slice(1);
     students.push({
+      classID: safeSplitComma(lines[i])[0],
       name: row[0],
       categories: [row[1] === "F",
         ...row.slice(10).map(x => x.length > 0)], // list of bools
@@ -145,10 +146,10 @@ function listsToCSV (state,sep) {
 function requirementsToCSV (state,sep) {
   let lines = [];
   lines.push(sep(['','Min','Max']));
-  lines.push(sep(['Students per class',state.classSize[0],state.classSize[1],'','No. classes',state.teacherNames.length,'','Teachers',...state.teacherNames]));
+  lines.push(sep(['Students per class',state.classSize[0],state.classSize[1],'','No. classes',state.teacherNames.length,'','Teachers',state.teacherNames]));
   lines.push(sep([]));
   lines.push(sep(['Required','Optional','','','','','','','','Custom categories']));
-  lines.push(sep(['Name','Gender','Friend 1','Friend 2','Friend 3','Friend 4','Friend 5',"Can't be with",'Must be with','Possible teachers',...state.categories]));
+  lines.push(sep(['Class code','Name','Gender','Friend 1','Friend 2','Friend 3','Friend 4','Friend 5',"Can't be with",'Must be with','Possible teachers',...state.categories]));
   for (let i = 0; i < state.students.length; i++) {
     var s = state.students[i];
     var f = n => state.students[n].name;
@@ -158,7 +159,7 @@ function requirementsToCSV (state,sep) {
     var must = s.mustBeWith.map(f).join(', ');
     var teachers = s.possibleTeachers.length === state.teacherNames.length ? "ALL" : s.possibleTeachers.map(n=>state.teacherNames[n]).join(', ');
     var cats = s.categories.slice(1).map(b => b ? "YES" : "");
-    lines.push(sep([s.name,s.categories[0]?'F':'M',...friends,cant,must,teachers,...cats]));
+    lines.push(sep([s.classID,s.name,s.categories[0]?'F':'M',...friends,cant,must,teachers,...cats]));
   }
   return lines.join('\n');
 }

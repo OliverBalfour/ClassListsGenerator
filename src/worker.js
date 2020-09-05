@@ -1,7 +1,7 @@
 
 // Web worker file to run iterate in background
 
-import { iterate, determineIssues } from './tools/algorithm.js';
+import { iterate } from './tools/algorithm.js';
 
 export const runAlgorithm = data => {
   let bestOption = { lists: data.lists, issues: data.issues,

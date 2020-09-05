@@ -105,7 +105,7 @@ export function determineIssues (state) {
       for (const idx of student.friends) {
         if (list.indexOf(idx) !== -1) numFriends ++;
       }
-      if (numFriends < 1)
+      if (numFriends < 1 && student.friends.length > 0)
         issues.push({severity: 3, message: `${student.name} is not with any friends.`});
       // Possible teacherNames
       if (student.possibleTeachers.indexOf(j) === -1)
