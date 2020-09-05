@@ -3,11 +3,13 @@ import {unparseCSVSpreadsheet} from '../tools/parser.js';
 import {
   TextField, Dialog, DialogActions, DialogContent, DialogContentText,
   DialogTitle, Button, FormLabel, FormControl, FormGroup, FormControlLabel,
-  Checkbox, Table, TableBody, TableRow, TableCell, Select
+  Checkbox, Table, TableBody, TableRow, TableCell, Select, Input, MenuItem,
+  useTheme, InputLabel
 } from '@material-ui/core';
 
 export function EditStudentDialog (props) {
   const studentNames = props.students.map(x=>x.name);
+  const theme = useTheme();
   /**
    * props.student_idx :: Int
    * props.updateStudent :: Student -> void
@@ -37,9 +39,9 @@ export function EditStudentDialog (props) {
   // handle change to 'name 1, name 2, ...' represented as list of
   // indices into props.students
   var [dummies, setDummies] = React.useState({
-    friends: student.friends.map(i => studentNames[i]).join(', '),
-    mustBeWith: student.mustBeWith.map(i => studentNames[i]).join(', '),
-    cannotBeWith: student.cannotBeWith.map(i => props.students[i].name).join(', ')
+    friends: student.friends.map(id => studentNames[id]),
+    mustBeWith: student.mustBeWith.map(id => studentNames[id]),
+    cannotBeWith: student.cannotBeWith.map(id => studentNames[id])
   });
   const handleDummyChange = key => evt => setDummies({
     ...dummies, [key]: evt.target.value
@@ -50,17 +52,17 @@ export function EditStudentDialog (props) {
     var stud = {};
     var nameError = false;
     for (const [key, value] of Object.entries(dummies)) {
-      if (value === "") stud[key] = [];
-      else stud[key] = value.split(",").map(x=>studentNames.indexOf(x.trim()));
+      if (!value.length) stud[key] = [];
+      else stud[key] = value.map(x=>studentNames.indexOf(x));
       var invalidIdx = stud[key].indexOf(-1);
-      if (invalidIdx !== -1) nameError = value.split(",")[invalidIdx];
+      if (invalidIdx !== -1) nameError = value[invalidIdx];
     }
 
     // Validation
     if (student.possibleTeachers.length === 0) {
       setErrorMessage("Cannot have zero possible teachers.");
     } else if (nameError !== false) {
-      setErrorMessage("Invalid name: '"+nameError+"'. Make sure spelling is exact and there is one comma between each name.");
+      setErrorMessage("Invalid name: '"+nameError+"'. Make sure spelling is exact.");
     } else {
       for (const [key, value] of Object.entries(stud)) {
         student[key] = value;
@@ -71,28 +73,40 @@ export function EditStudentDialog (props) {
       props.updateStudent(student);
     }
   }
-  var dummyMarkup = (<>
-  <TextField
-    label="Must be with (comma separated names)"
-    variant="filled"
-    value={dummies.mustBeWith}
-    onChange={handleDummyChange("mustBeWith")}
-    fullWidth
-  />
-  <TextField
-    label="Cannot be with (comma separated names)"
-    variant="filled"
-    value={dummies.cannotBeWith}
-    onChange={handleDummyChange("cannotBeWith")}
-    fullWidth
-  />
-  <TextField
-    label="Friends (comma separated names)"
-    variant="filled"
-    value={dummies.friends}
-    onChange={handleDummyChange("friends")}
-    fullWidth
-  /></>);
+  function getStyles(name, personName, theme) {
+    return {
+      fontWeight:
+        personName.indexOf(name) === -1
+          ? theme.typography.fontWeightRegular
+          : theme.typography.fontWeightMedium,
+    };
+  }
+  const DummyField = ({prop, printName}) => (
+    <React.Fragment>
+      <br/>
+      <InputLabel id={prop+"-label"}>{printName}</InputLabel>
+      <Select
+        labelId={prop+"-label"}
+        multiple
+        value={dummies[prop]}
+        onChange={handleDummyChange(prop)}
+        input={<Input />}
+        fullWidth>
+        {studentNames.map(name => (
+          <MenuItem key={name} value={name} style={getStyles(name, dummies[prop], theme)}>
+            {name}
+          </MenuItem>
+        ))}
+      </Select>
+    </React.Fragment>
+  );
+  var dummyMarkup = (
+    <React.Fragment>
+      <br/><DummyField prop="friends" printName="Friends" />
+      <br/><DummyField prop="mustBeWith" printName="Must Be With" />
+      <br/><DummyField prop="cannotBeWith" printName="Cannot Be With" />
+    </React.Fragment>
+  );
 
   return (
  <Dialog open={true} onClose={()=>{}} aria-labelledby="form-dialog-title">
@@ -110,9 +124,10 @@ export function EditStudentDialog (props) {
       variant="filled"
       value={student.name}
       onChange={handleChange("name")}
-      fullWidth
-    />
+      fullWidth />
+    <InputLabel style={{marginTop:10}} id="teacher-label">Current Teacher</InputLabel>
     <Select
+      labelId="teacher-label"
       native
       value={props.teachers[classIdx]}
       onChange={evt => setClassIdx(props.teachers.indexOf(evt.target.value))}
@@ -122,6 +137,7 @@ export function EditStudentDialog (props) {
         <option value={name} key={idx}>{name}</option>
       )}
     </Select>
+    {dummyMarkup}
     <FormControl component="fieldset" style={{marginTop:"20px"}}>
       <FormLabel component="legend">Categories</FormLabel>
       <FormGroup>
@@ -158,7 +174,6 @@ export function EditStudentDialog (props) {
         ))}
       </FormGroup>
     </FormControl>
-    {dummyMarkup}
   </DialogContent>
   <DialogActions>
     <Button color="primary" onClick={

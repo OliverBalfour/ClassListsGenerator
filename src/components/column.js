@@ -58,7 +58,7 @@ export default function Column (props) {
               </span>
             ))}
             {props.state !== 'editing' ? null : (
-              <CreateIcon className={classes.pencil}
+              <CreateIcon fontSize='small' className={classes.pencil}
                 onClick={() => props.editStudent(props.list[idx])} />
             )}
           </TableCell>
