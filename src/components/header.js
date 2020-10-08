@@ -37,7 +37,7 @@ export default function Header (props) {
   }
 
   return (
-<Box className={classes.header}>
+<Box className={classes.header + " cl-header"}>
   <Box className={classes.headerLeft}>
     Class Lists Generator App
   </Box>

@@ -3,9 +3,11 @@ HIGH PRIORITY:
 Print CSS for export with issues
 - Class columns stacked vertically without labels
 - Separate issue page
+- Display current class code and year
+- Do not clip off columns
 
-Manually set priority of each issue
-- Add fields to spreadsheet (but not to app as it is a lot of work)
+Example print CSS:
 
-LOW PRIORITY:
-Create Google Form for friend names
+@media print {
+   p.bodyText {font-family:georgia, times, serif;}
+}

@@ -44,7 +44,7 @@ export default function Column (props) {
   <Table size='small'>
     <TableHead>
       <TableRow><TableCell>
-        <h1 className={classes.className}>{props.name}</h1>
+        <h1 className={classes.className}>{props.name}<span className='cl-printonly'> {new Date().getFullYear()}</span></h1>
       </TableCell></TableRow>
     </TableHead>
     <TableBody>
@@ -52,11 +52,12 @@ export default function Column (props) {
         <TableRow key={idx}>
           <TableCell>
             {name} &nbsp;&nbsp;
-            {relevantCategories[idx].map(cat => (
-              <span key={cat}>
-                <Chip label={props.categories[cat]} size='small' />&nbsp;
-              </span>
-            ))}
+            {relevantCategories[idx].map((cat, i) => <span key={cat}>
+              <ChipWrapper category={props.categories[cat]}
+                colour={props.categoryColours ? props.categoryColours[cat]:null}/>
+              &nbsp;
+            </span>)}
+            <PrintOnlyStuff student={props.students[idx]} />
             {props.state !== 'editing' ? null : (
               <CreateIcon fontSize='small' className={classes.pencil}
                 onClick={() => props.editStudent(props.list[idx])} />
@@ -69,3 +70,16 @@ export default function Column (props) {
 </TableContainer>
   );
 }
+
+const ChipWrapper = ({ category, colour }) => {
+  const chipRef = React.useRef(null);
+  React.useEffect(() => {
+    chipRef.current.style = `background-color: ${colour}`;
+  });
+  return (
+    <Chip label={category} size='small' ref={chipRef} />
+  );
+};
+
+const PrintOnlyStuff = ({student}) =>
+  <span className='cl-printonly'>{student.classID}</span>

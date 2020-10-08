@@ -81,7 +81,7 @@ class App extends React.Component {
   }
   importCSV (promise) {
     promise.then(data => {
-      // This adds numClasses, classSize, teacherNames, categories,
+      // This adds numClasses, classSize, teacherNames, categories, categoryColours
       //   students, studentNames, issues and lists to the state
       const parsed = parseCSVSpreadsheet(data);
       this.setState(parsed, this.autosave);
@@ -123,11 +123,11 @@ class App extends React.Component {
   autosave () {
     // add the current state to the this.state.saves list
     let { saves, lists, students, classSize, categories, teacherNames,
-      issues, numClasses, studentNames, version } = this.state;
+      issues, numClasses, studentNames, version, categoryColours } = this.state;
     saves.push({
       name: "",
       time: new Date().getTime(),
-      data: { lists, students, classSize, categories, teacherNames,
+      data: { lists, students, classSize, categories, categoryColours, teacherNames,
         issues, numClasses, studentNames, version }
     });
     // allow only the most recent 10 unnamed saves; named ones are preserved
@@ -185,6 +185,7 @@ class App extends React.Component {
             teachers={this.state.teacherNames}
             students={this.state.students}
             categories={this.state.categories}
+            categoryColours={this.state.categoryColours}
             lists={this.state.lists}
             state={this.state.state}
             editStudent={this.editStudent.bind(this)}

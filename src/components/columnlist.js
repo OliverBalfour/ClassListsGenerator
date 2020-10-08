@@ -40,13 +40,14 @@ export default function ColumnList (props) {
   }))();
 
   return (
-<Box className={classes.body}>
-  <Box className={classes.columnContainer}>
+<Box className={classes.body + " cl-body"}>
+  <Box className={classes.columnContainer + " cl-column-cont"}>
     {props.teachers.map((name, index) => (
-      <Box className={classes.columnBox} key={index}>
+      <Box className={classes.columnBox + " cl-column"} key={index}>
         <Column name={name} list={props.lists[index]}
           students={props.students} categories={props.categories}
-          state={props.state} editStudent={props.editStudent} />
+          state={props.state} editStudent={props.editStudent}
+          categoryColours={props.categoryColours} />
       </Box>
     ))}
   </Box>

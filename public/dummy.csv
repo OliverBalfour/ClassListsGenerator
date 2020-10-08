@@ -2,7 +2,7 @@
 Students per class,7,8,,No. classes,3,,Teachers,"Mrs A, Mr B, Ms C",,,,,,,,,,
 ,,,,,,,,,,,,,,,,,,
 Required,,Optional,,,,,,,,Custom categories,,,,,,,,
-Class code,Name,Gender,Friend 1,Friend 2,Friend 3,Friend 4,Friend 5,Can't be with,Must be with,Possible teachers,Parents,Behaviour,G&T,Low Lit,Low Math,Anxiety,ILP,High Maths,High Lit
+Class code,Name,Gender,Friend 1,Friend 2,Friend 3,Friend 4,Friend 5,Can't be with,Must be with,Possible teachers,Parents,Behaviour,G&T,Low Lit,Low Math,Anxiety,ILP (orange),High Maths (lightblue),High Lit (lightgreen)
 A,Alice B,F,Qihao C,Jaimee C,,,,,,ALL,YES,,,,,,,,
 A,Jim C,M,Bob K,Qihao C,,,,,,ALL,,YES,,,,,,,
 B,Muhammed R,M,Nathanael T,Bob K,,,,,,ALL,,,,,,,,,

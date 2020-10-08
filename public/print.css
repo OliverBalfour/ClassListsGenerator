@@ -1,0 +1,17 @@
+
+.cl-body {
+  display: block !important;
+}
+.cl-pagebreak {
+  page-break-before: always !important;
+}
+.cl-column {
+  display: block !important;
+  page-break-inside: avoid !important;
+}
+.cl-header {
+  display: none !important;
+}
+.cl-printonly {
+  opacity: 1 !important;
+}

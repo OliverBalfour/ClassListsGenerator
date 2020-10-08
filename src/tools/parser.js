@@ -75,6 +75,15 @@ function parseRequirements (lines) {
 
   var teacherNames = safeSplitComma(lines[1])[8].split(',').map(x=>x.trim());
   var categories = ["Female", ...safeSplitComma(lines[4]).slice(11)];
+  var categoryColours = [];
+  var colourRegex = /(.*)\((\w+)\)/;
+  for (let i = 0; i < categories.length; i++) {
+    var match = categories[i].match(colourRegex);
+    if (match) {
+      categories[i] = match[1];
+      categoryColours.push(match[2]);
+    } else categoryColours.push("default");
+  }
 
   var students = [];
   var studentNames = lines.slice(5).map(safeSplitComma).map(x=>x[1]);
@@ -83,7 +92,7 @@ function parseRequirements (lines) {
     students.push({
       classID: safeSplitComma(lines[i])[0],
       name: row[0],
-      categories: [row[1] === "F",
+      categories: [row[1][0] === "F",
         ...row.slice(10).map(x => x.length > 0)], // list of bools
       friends: row.slice(2,7).map(name=>studentNames.indexOf(name))
                 .filter(x=>x>=0),
@@ -108,6 +117,7 @@ function parseRequirements (lines) {
     classSize: [minStudents, maxStudents],
     teacherNames,
     categories,
+    categoryColours,
     students,
     studentNames
   }
