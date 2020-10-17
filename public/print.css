@@ -8,6 +8,10 @@
 .cl-column {
   display: block !important;
   page-break-inside: avoid !important;
+  min-width: 600px !important;
+}
+.cl-column .MuiTableContainer-root {
+  min-width: 540px !important;
 }
 .cl-header {
   display: none !important;
