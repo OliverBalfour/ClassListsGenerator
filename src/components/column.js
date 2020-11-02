@@ -48,23 +48,26 @@ export default function Column (props) {
       </TableCell></TableRow>
     </TableHead>
     <TableBody>
-      {props.list.map(idx => props.students[idx].name).map((name, idx) => (
-        <TableRow key={idx}>
-          <TableCell>
-            {name} &nbsp;&nbsp;
-            {relevantCategories[idx].map((cat, i) => <span key={cat}>
-              <ChipWrapper category={props.categories[cat]}
-                colour={props.categoryColours ? props.categoryColours[cat]:null}/>
-              &nbsp;
-            </span>)}
-            <PrintOnlyStuff student={props.students[idx]} />
-            {props.state !== 'editing' ? null : (
-              <CreateIcon fontSize='small' className={classes.pencil}
-                onClick={() => props.editStudent(props.list[idx])} />
-            )}
-          </TableCell>
-        </TableRow>
-      ))}
+      {props.list.map((student_idx, index_in_list) => {
+        const stud = props.students[student_idx];
+        return (
+          <TableRow key={student_idx}>
+            <TableCell>
+              {stud.name} &nbsp;&nbsp;
+              {relevantCategories[index_in_list].map((cat, i) => <span key={cat}>
+                <ChipWrapper category={props.categories[cat]}
+                  colour={props.categoryColours ? props.categoryColours[cat]:null}/>
+                &nbsp;
+              </span>)}
+              <PrintOnlyStuff student={stud} />
+              {props.state !== 'editing' ? null : (
+                <CreateIcon fontSize='small' className={classes.pencil}
+                  onClick={() => props.editStudent(student_idx)} />
+              )}
+            </TableCell>
+          </TableRow>
+        );
+      })}
     </TableBody>
   </Table>
 </TableContainer>
