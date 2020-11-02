@@ -4,7 +4,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/ClassListsGenerator/bad786582c6add302e32.worker.js"
   },
   {
-    "revision": "236ae78ddca5d83b9b78c9b687a19a28",
+    "revision": "7473ced010ec08e03050854293c94ada",
     "url": "/ClassListsGenerator/index.html"
   },
   {
@@ -16,8 +16,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/ClassListsGenerator/static/js/2.f13c6908.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "2b9a617c4a70f10c8a68",
-    "url": "/ClassListsGenerator/static/js/main.cf5b49e2.chunk.js"
+    "revision": "397842d5d6c255f4dcb7",
+    "url": "/ClassListsGenerator/static/js/main.342b0828.chunk.js"
   },
   {
     "revision": "7b12fa222d60bb6b6266",
