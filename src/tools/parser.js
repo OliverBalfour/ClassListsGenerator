@@ -56,13 +56,15 @@ export function parseCSVSpreadsheet (rawDataString) {
 
 function parseClassLists (state, lines) {
   const cols = state.teacherNames.length;
-  const extractCols = line => line.split(',').slice(0,cols).map(x=>x.substring(1,x.length-1));
+  const removeQuotes = x=>x[0] === '"' ? x.substring(1,x.length-1) : x;
+  const extractCols = line => line.split(',').slice(0,cols).map(removeQuotes);
   const lists = state.teacherNames.map(x=>[]);
   const idxFromName = name => state.studentNames.indexOf(name);
   for (let i = 1; i < lines.length; i ++) {
     const names = extractCols(lines[i]);
     for (let j = 0; j < cols; j++) {
-      lists[j].push(idxFromName(names[j]));
+      if (names[j].length)
+        lists[j].push(idxFromName(names[j]));
     }
   }
   return lists;
