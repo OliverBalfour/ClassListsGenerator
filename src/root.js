@@ -224,7 +224,7 @@ class App extends React.Component {
           viewIssues={() => this.setState({ viMod: !this.state.viMod })}
           reset={() => {
             if (window.prompt("This action will delete ALL data. Type YES to confirm, or leave blank to cancel.", "NO") === "YES") {
-              localStorage.clear();
+              localStorage.saves = null;
               this.setState(this.defaultState);
             }
           }}

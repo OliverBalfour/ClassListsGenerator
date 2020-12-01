@@ -1,6 +1,13 @@
 
 import {generateRandomList,determineIssues} from './algorithm.js';
 
+/*
+// TODO:
+
+need to display gender in both cases
+the problem is when you import the spreadsheet the categories are in the wrong order
+*/
+
 const safeSplitComma = string => {
   // we can have commas in strings delimited by "these quotes"
   // this works around that
