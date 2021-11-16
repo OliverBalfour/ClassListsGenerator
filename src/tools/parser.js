@@ -82,7 +82,7 @@ function parseRequirements (lines) {
   var minStudents = parseInt(lines[1].split(",")[1]);
   var maxStudents = parseInt(lines[1].split(",")[2]);
 
-  var teacherNames = safeSplitComma(lines[1])[8].split(',').map(x=>x.trim());
+  var teacherNames = safeSplitComma(lines[1])[8].split(',').map(x=>x.trim()).filter(x => x.length);
   var categories = ["Female", ...safeSplitComma(lines[4]).slice(11)];
   var categoryColours = [];
   var colourRegex = /(.*)\((\w+)\)/;
