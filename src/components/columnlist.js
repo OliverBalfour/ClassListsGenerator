@@ -28,7 +28,8 @@ export default function ColumnList (props) {
       top: 0, bottom: 0,
       padding: theme.spacing(2),
       overflowX: 'scroll',
-      whiteSpace: 'nowrap'
+      whiteSpace: 'nowrap',
+      display: 'flex'
     },
     columnBox: {
       position: 'relative',
